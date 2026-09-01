@@ -1,0 +1,21 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "Tailored toFit API", "version": "1.0.0" },
+  "servers": [{ "url": "http://localhost:4000" }],
+  "components": { "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" } } },
+  "paths": {
+    "/health": { "get": { "summary": "Health check" } },
+    "/api/auth/register": { "post": { "summary": "Create account" } },
+    "/api/auth/login": { "post": { "summary": "Login" } },
+    "/api/auth/me": { "get": { "security": [{ "bearerAuth": [] }], "summary": "Current user" } },
+    "/api/dashboard": { "get": { "security": [{ "bearerAuth": [] }], "summary": "Dashboard data" } },
+    "/api/clients": { "get": { "security": [{ "bearerAuth": [] }], "summary": "List clients" }, "post": { "security": [{ "bearerAuth": [] }], "summary": "Create client" } },
+    "/api/clients/{id}": { "get": { "security": [{ "bearerAuth": [] }], "summary": "Get client" }, "patch": { "security": [{ "bearerAuth": [] }], "summary": "Update client" }, "delete": { "security": [{ "bearerAuth": [] }], "summary": "Delete client" } },
+    "/api/clients/{id}/measurements": { "get": { "security": [{ "bearerAuth": [] }], "summary": "List measurements" }, "post": { "security": [{ "bearerAuth": [] }], "summary": "Save measurement and generate fit profile" } },
+    "/api/clients/{id}/fit-profile/generate": { "post": { "security": [{ "bearerAuth": [] }], "summary": "Generate fit profile" } },
+    "/api/clients/{id}/recommendations": { "get": { "security": [{ "bearerAuth": [] }], "summary": "Get style recommendations" } },
+    "/api/styles": { "get": { "security": [{ "bearerAuth": [] }], "summary": "List saved styles" }, "post": { "security": [{ "bearerAuth": [] }], "summary": "Save style" } },
+    "/api/styles/{id}": { "delete": { "security": [{ "bearerAuth": [] }], "summary": "Delete saved style" } },
+    "/api/profile": { "get": { "security": [{ "bearerAuth": [] }], "summary": "Get profile" }, "patch": { "security": [{ "bearerAuth": [] }], "summary": "Update profile" } }
+  }
+}

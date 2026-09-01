@@ -1,0 +1,11 @@
+import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { router } from 'expo-router';
+import { Card, Header, PrimaryButton, Screen } from '../components';
+import { colors } from '../theme';
+const rows=[['Fit','Slim'],['Top Length','Medium'],['Sleeve Length','Long Sleeve'],['Collar Style','Mandarin'],['Pocket Style','Single Pocket'],['Trousers','Straight Fit'],['Fabric','Ankara'],['Occasion','Wedding']];
+export default function Customize(){
+  return (
+    <Screen><ScrollView contentContainerStyle={styles.content}><Header title="Customize Style" back action="Reset"/><Card><View style={styles.preview}><View style={styles.previewShape}><Text style={styles.previewText}>✦</Text></View><View><Text style={styles.title}>Modern Senator</Text><Text style={styles.sub}>Customize to fit your client’s needs.</Text></View></View></Card><Text style={styles.heading}>Customize Details</Text><Card>{rows.map(([a,b])=><Pressable key={a} style={styles.row}><Text style={styles.label}>{a}</Text><Text style={styles.value}>{b}  ˅</Text></Pressable>)}</Card><View style={styles.recommend}><Text style={styles.recTitle}>✦ AI Recommendation</Text><Text style={styles.recText}>This combination complements your client's body proportions with 93% confidence.</Text></View><PrimaryButton label="Generate Design Preview ✦" onPress={()=>router.push('/ai' as any)}/></ScrollView></Screen>
+  );
+}
+const styles=StyleSheet.create({content:{padding:16,paddingBottom:30},preview:{flexDirection:'row',alignItems:'center'},previewShape:{width:72,height:82,borderRadius:10,backgroundColor:'#f0e8df',alignItems:'center',justifyContent:'center',marginRight:12},previewText:{fontSize:32,color:'#6d2440'},title:{fontSize:13,fontWeight:'800',color:colors.text},sub:{fontSize:9,color:colors.muted,marginTop:5},heading:{fontSize:12,fontWeight:'800',color:colors.text,marginTop:18,marginBottom:8},row:{height:43,flexDirection:'row',alignItems:'center',justifyContent:'space-between',borderBottomWidth:1,borderBottomColor:colors.line},label:{fontSize:10,color:colors.muted},value:{fontSize:10,color:colors.text,fontWeight:'600'},recommend:{backgroundColor:colors.softPurple,borderRadius:12,padding:14,marginVertical:12},recTitle:{fontSize:11,color:colors.purple,fontWeight:'800'},recText:{fontSize:10,color:colors.text,lineHeight:15,marginTop:5}})

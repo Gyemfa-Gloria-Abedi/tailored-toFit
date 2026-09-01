@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  name         String
+  email        String       @unique
+  passwordHash String
+  phone        String?
+  businessName String?
+  avatarUrl    String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  clients      Client[]
+  savedStyles  SavedStyle[]
+}
+
+model Client {
+  id              String                @id @default(cuid())
+  ownerId         String
+  name            String
+  gender          Gender?
+  dateOfBirth     DateTime?
+  phone           String?
+  email           String?
+  notes           String?
+  avatarUrl       String?
+  active          Boolean               @default(true)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  owner           User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  fitProfiles     FitProfile[]
+  measurements    Measurement[]
+  recommendations StyleRecommendation[]
+
+  @@index([ownerId])
+}
+
+model Measurement {
+  id            String          @id @default(cuid())
+  clientId      String
+  unit          MeasurementUnit @default(INCH)
+  neck          Float?
+  shoulderWidth Float?
+  chest         Float?
+  waist         Float?
+  hip           Float?
+  backLength    Float?
+  acrossChest   Float?
+  sleeveLength  Float?
+  bicep         Float?
+  wrist         Float?
+  createdAt     DateTime        @default(now())
+  client        Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, createdAt])
+}
+
+model FitProfile {
+  id              String   @id @default(cuid())
+  clientId        String
+  score           Int
+  bodyShape       String
+  summary         String
+  strengths       Json
+  recommendations Json
+  generatedAt     DateTime @default(now())
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, generatedAt])
+}
+
+model StyleRecommendation {
+  id          String   @id @default(cuid())
+  clientId    String
+  name        String
+  category    String
+  description String
+  imageUrl    String?
+  reasons     Json
+  score       Int
+  createdAt   DateTime @default(now())
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+}
+
+model SavedStyle {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  category    String
+  description String
+  imageUrl    String?
+  designData  Json?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum MeasurementUnit {
+  INCH
+  CM
+}
