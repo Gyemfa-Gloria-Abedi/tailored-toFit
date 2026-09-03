@@ -63,6 +63,21 @@ export type CreateClientData = {
   avatarUrl?: string;
 };
 
+export type CreateMeasurementData = {
+  unit: 'INCH' | 'CM';
+
+  neck?: number;
+  shoulderWidth?: number;
+  chest?: number;
+  waist?: number;
+  hip?: number;
+  backLength?: number;
+  acrossChest?: number;
+  sleeveLength?: number;
+  bicep?: number;
+  wrist?: number;
+};
+
 export async function getClients(
   search?: string
 ) {
@@ -123,6 +138,34 @@ export async function deleteClient(
     `/api/clients/${id}`,
     {
       method: 'DELETE',
+    }
+  );
+}
+
+export async function createMeasurement(
+  clientId: string,
+  data: CreateMeasurementData
+) {
+  return apiRequest<{
+    measurement: Measurement;
+  }>(
+    `/api/clients/${clientId}/measurements`,
+    {
+      method: 'POST',
+      body: data,
+    }
+  );
+}
+
+export async function updateMeasurement(
+  id: string,
+  data: CreateMeasurementData
+) {
+  return apiRequest<{ measurement: Measurement }>(
+    `/api/measurements/${id}`,
+    {
+      method: 'PATCH',
+      body: data,
     }
   );
 }

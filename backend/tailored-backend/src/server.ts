@@ -113,23 +113,176 @@ app.delete('/api/clients/:id', requireAuth, async (req: AuthRequest, res, next) 
   try { const result = await prisma.client.deleteMany({ where: { id: req.params.id, ownerId: req.userId } }); if (!result.count) return res.status(404).json({ message: 'Client not found' }); res.status(204).send(); } catch (e) { next(e); }
 });
 
-app.post('/api/clients/:id/measurements', requireAuth, async (req: AuthRequest, res, next) => {
-  try {
-    const data = measurementSchema.parse(req.body);
-    const client = await prisma.client.findFirst({ where: { id: req.params.id, ownerId: req.userId } });
-    if (!client) return res.status(404).json({ message: 'Client not found' });
-    const measurement = await prisma.measurement.create({ data: { ...data, clientId: client.id } });
-    const profile = generateFitProfile(data);
-    const fitProfile = await prisma.fitProfile.create({ data: { clientId: client.id, score: profile.score, bodyShape: profile.bodyShape, summary: profile.summary, strengths: profile.strengths, recommendations: profile.recommendations } });
-    await prisma.styleRecommendation.deleteMany({ where: { clientId: client.id } });
-    await prisma.styleRecommendation.createMany({ data: recommendationSeed().map(x => ({ ...x, clientId: client.id, reasons: x.reasons })) });
-    res.status(201).json({ measurement, fitProfile });
-  } catch (e) { next(e); }
-});
+app.post(
+  '/api/clients/:id/measurements',
+  requireAuth,
+  async (req: AuthRequest, res, next) => {
+    try {
+      const clientId = req.params.id;
+
+      // Make sure the client belongs to the
+      // currently logged-in tailor.
+      const client = await prisma.client.findFirst({
+        where: {
+          id: clientId,
+          ownerId: req.userId,
+        },
+      });
+
+      if (!client) {
+        return res.status(404).json({
+          message: 'Client not found.',
+        });
+      }
+
+      const {
+        unit,
+        neck,
+        shoulderWidth,
+        chest,
+        waist,
+        hip,
+        backLength,
+        acrossChest,
+        sleeveLength,
+        bicep,
+        wrist,
+      } = req.body;
+
+      // Unit is required.
+      if (unit !== 'INCH' && unit !== 'CM') {
+        return res.status(400).json({
+          message: 'Measurement unit must be INCH or CM.',
+        });
+      }
+
+      const measurement =
+        await prisma.measurement.create({
+          data: {
+            clientId,
+            unit,
+
+            neck:
+              neck !== undefined
+                ? Number(neck)
+                : undefined,
+
+            shoulderWidth:
+              shoulderWidth !== undefined
+                ? Number(shoulderWidth)
+                : undefined,
+
+            chest:
+              chest !== undefined
+                ? Number(chest)
+                : undefined,
+
+            waist:
+              waist !== undefined
+                ? Number(waist)
+                : undefined,
+
+            hip:
+              hip !== undefined
+                ? Number(hip)
+                : undefined,
+
+            backLength:
+              backLength !== undefined
+                ? Number(backLength)
+                : undefined,
+
+            acrossChest:
+              acrossChest !== undefined
+                ? Number(acrossChest)
+                : undefined,
+
+            sleeveLength:
+              sleeveLength !== undefined
+                ? Number(sleeveLength)
+                : undefined,
+
+            bicep:
+              bicep !== undefined
+                ? Number(bicep)
+                : undefined,
+
+            wrist:
+              wrist !== undefined
+                ? Number(wrist)
+                : undefined,
+          },
+        });
+
+      return res.status(201).json({
+        measurement,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 app.get('/api/clients/:id/measurements', requireAuth, async (req: AuthRequest, res, next) => {
   try { const measurements = await prisma.measurement.findMany({ where: { client: { id: req.params.id, ownerId: req.userId } }, orderBy: { createdAt: 'desc' } }); res.json({ measurements }); } catch (e) { next(e); }
 });
+
+app.patch(
+  '/api/measurements/:id',
+  requireAuth,
+  async (req: AuthRequest, res, next) => {
+    try {
+      const measurementId = req.params.id;
+
+      // Make sure the measurement belongs to a client
+      // owned by the currently logged-in tailor.
+      const existingMeasurement =
+        await prisma.measurement.findFirst({
+          where: {
+            id: measurementId,
+            client: {
+              ownerId: req.userId,
+            },
+          },
+        });
+
+      if (!existingMeasurement) {
+        return res.status(404).json({
+          message: 'Measurement not found.',
+        });
+      }
+
+      // Validate the submitted measurement data.
+      const data = measurementSchema.parse(req.body);
+
+      const measurement =
+        await prisma.measurement.update({
+          where: {
+            id: measurementId,
+          },
+          data: {
+            unit: data.unit,
+            neck: data.neck,
+            shoulderWidth: data.shoulderWidth,
+            chest: data.chest,
+            waist: data.waist,
+            hip: data.hip,
+            backLength: data.backLength,
+            acrossChest: data.acrossChest,
+            sleeveLength: data.sleeveLength,
+            bicep: data.bicep,
+            wrist: data.wrist,
+          },
+        });
+
+      return res.json({
+        measurement,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 app.post('/api/clients/:id/fit-profile/generate', requireAuth, async (req: AuthRequest, res, next) => {
   try {

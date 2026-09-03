@@ -6,64 +6,56 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
+} from 'react-native'
 
-import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router'
+import { useEffect, useState } from 'react'
 
-import { Screen } from '../../components';
-import { colors } from '../../theme';
+import { Screen } from '../../components'
+import { colors } from '../../theme'
 
-import {
-  Client,
-  deleteClient,
-  getClient,
-} from '../../api/clients';
+import { Client, deleteClient, getClient } from '../../api/clients'
 
 export default function ClientDetails() {
   const { id } = useLocalSearchParams<{
-    id: string;
-  }>();
+    id: string
+  }>()
 
-  const [client, setClient] =
-    useState<Client | null>(null);
+  const [client, setClient] = useState<Client | null>(null)
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) return
 
-    loadClient();
-  }, [id]);
+    loadClient()
+  }, [id])
 
   async function loadClient() {
     try {
-      setLoading(true);
+      setLoading(true)
 
-      const response = await getClient(id);
+      const response = await getClient(id)
 
-      setClient(response.client);
+      setClient(response.client)
     } catch (err) {
       Alert.alert(
         'Unable to load client',
-        err instanceof Error
-          ? err.message
-          : 'Client could not be loaded.',
+        err instanceof Error ? err.message : 'Client could not be loaded.',
         [
           {
             text: 'Go back',
             onPress: () => router.back(),
           },
-        ]
-      );
+        ],
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   function confirmDelete() {
-    if (!client) return;
+    if (!client) return
 
     Alert.alert(
       'Delete client',
@@ -78,65 +70,48 @@ export default function ClientDetails() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await deleteClient(client.id);
+              await deleteClient(client.id)
 
-              router.replace(
-                '/clients' as any
-              );
+              router.replace('/clients' as any)
             } catch (err) {
               Alert.alert(
                 'Delete failed',
-                err instanceof Error
-                  ? err.message
-                  : 'Unable to delete client.'
-              );
+                err instanceof Error ? err.message : 'Unable to delete client.',
+              )
             }
           },
         },
-      ]
-    );
+      ],
+    )
   }
 
   if (loading) {
     return (
       <Screen>
         <View style={styles.loading}>
-          <ActivityIndicator
-            size="large"
-            color={colors.purple}
-          />
+          <ActivityIndicator size="large" color={colors.purple} />
 
-          <Text style={styles.loadingText}>
-            Loading client...
-          </Text>
+          <Text style={styles.loadingText}>Loading client...</Text>
         </View>
       </Screen>
-    );
+    )
   }
 
   if (!client) {
-    return null;
+    return null
   }
 
-  const latestMeasurement =
-    client.measurements?.[0];
+  const latestMeasurement = client.measurements?.[0]
 
-  const latestProfile =
-    client.fitProfiles?.[0];
+  const latestProfile = client.fitProfiles?.[0]
 
   return (
     <Screen>
       <ScrollView
         contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <Pressable
-          onPress={() => router.back()}
-          style={styles.back}
-        >
-          <Text style={styles.backText}>
-            ‹ Back
-          </Text>
+        showsVerticalScrollIndicator={false}>
+        <Pressable onPress={() => router.back()} style={styles.back}>
+          <Text style={styles.backText}>‹ Back</Text>
         </Pressable>
 
         <View style={styles.profileHeader}>
@@ -145,75 +120,59 @@ export default function ClientDetails() {
               {client.name
                 .split(' ')
                 .slice(0, 2)
-                .map((x) => x[0])
+                .map(x => x[0])
                 .join('')
                 .toUpperCase()}
             </Text>
           </View>
 
           <View style={styles.headerInfo}>
-            <Text style={styles.name}>
-              {client.name}
-            </Text>
+            <Text style={styles.name}>{client.name}</Text>
 
             <Text style={styles.meta}>
-              {client.gender
-                ? client.gender.toLowerCase()
-                : 'Client'}
+              {client.gender ? client.gender.toLowerCase() : 'Client'}
             </Text>
           </View>
         </View>
 
         <View style={styles.actions}>
-          <Pressable
-            style={styles.primaryAction}
-            onPress={() =>
-              router.push(
-                `/client/${client.id}/measurements` as any
-              )
-            }
-          >
-            <Text style={styles.primaryActionText}>
-              Measurements
-            </Text>
-          </Pressable>
+  <Pressable
+    style={styles.primaryAction}
+    onPress={() =>
+      router.push(`/new-measurement?clientId=${client.id}` as any)
+    }
+  >
+    <Text style={styles.primaryActionText}>
+      Add Measurement
+    </Text>
+  </Pressable>
 
-          <Pressable
-            style={styles.secondaryAction}
-            onPress={() =>
-              router.push(
-                `/edit-client/${client.id}` as any
-              )
-            }
-          >
-            <Text
-              style={styles.secondaryActionText}
-            >
-              Edit
-            </Text>
-          </Pressable>
-        </View>
+  {latestMeasurement && (
+    <Pressable
+      style={styles.secondaryAction}
+      onPress={() =>
+        router.push(
+          `/edit-measurement?id=${latestMeasurement.id}&clientId=${client.id}` as any
+        )
+      }
+    >
+      <Text style={styles.secondaryActionText}>
+        Update Measurement
+      </Text>
+    </Pressable>
+  )}
+</View>
 
         <Section title="Contact">
-          <InfoRow
-            label="Phone"
-            value={client.phone || 'Not provided'}
-          />
+          <InfoRow label="Phone" value={client.phone || 'Not provided'} />
 
-          <InfoRow
-            label="Email"
-            value={client.email || 'Not provided'}
-          />
+          <InfoRow label="Email" value={client.email || 'Not provided'} />
 
           <InfoRow
             label="Date of birth"
             value={
               client.dateOfBirth
-                ? new Date(
-                    client.dateOfBirth
-                  ).toLocaleDateString(
-                    'en-GB'
-                  )
+                ? new Date(client.dateOfBirth).toLocaleDateString('en-GB')
                 : 'Not provided'
             }
           />
@@ -222,10 +181,7 @@ export default function ClientDetails() {
         <Section title="Latest Measurement">
           {latestMeasurement ? (
             <View>
-              <InfoRow
-                label="Unit"
-                value={latestMeasurement.unit}
-              />
+              <InfoRow label="Unit" value={latestMeasurement.unit} />
 
               <InfoRow
                 label="Chest"
@@ -255,9 +211,7 @@ export default function ClientDetails() {
               />
             </View>
           ) : (
-            <EmptySection
-              text="No measurements have been recorded yet."
-            />
+            <EmptySection text="No measurements have been recorded yet." />
           )}
         </Section>
 
@@ -265,93 +219,56 @@ export default function ClientDetails() {
           {latestProfile ? (
             <>
               <View style={styles.fitScore}>
-                <Text style={styles.fitScoreNumber}>
-                  {latestProfile.score}
-                </Text>
+                <Text style={styles.fitScoreNumber}>{latestProfile.score}</Text>
 
-                <Text style={styles.fitScoreLabel}>
-                  FIT SCORE
-                </Text>
+                <Text style={styles.fitScoreLabel}>FIT SCORE</Text>
               </View>
 
-              <Text style={styles.bodyShape}>
-                {latestProfile.bodyShape}
-              </Text>
+              <Text style={styles.bodyShape}>{latestProfile.bodyShape}</Text>
 
-              <Text style={styles.summary}>
-                {latestProfile.summary}
-              </Text>
+              <Text style={styles.summary}>{latestProfile.summary}</Text>
             </>
           ) : (
-            <EmptySection
-              text="A fit profile will appear after measurements are added."
-            />
+            <EmptySection text="A fit profile will appear after measurements are added." />
           )}
         </Section>
 
-        <Pressable
-          onPress={confirmDelete}
-          style={styles.deleteButton}
-        >
-          <Text style={styles.deleteText}>
-            Delete Client
-          </Text>
+        <Pressable onPress={confirmDelete} style={styles.deleteButton}>
+          <Text style={styles.deleteText}>Delete Client</Text>
         </Pressable>
       </ScrollView>
     </Screen>
-  );
+  )
 }
 
 function Section({
   title,
   children,
 }: {
-  title: string;
-  children: React.ReactNode;
+  title: string
+  children: React.ReactNode
 }) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>
-        {title}
-      </Text>
+      <Text style={styles.sectionTitle}>{title}</Text>
 
-      <View style={styles.card}>
-        {children}
-      </View>
+      <View style={styles.card}>{children}</View>
     </View>
-  );
+  )
 }
 
-function InfoRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.infoRow}>
-      <Text style={styles.infoLabel}>
-        {label}
-      </Text>
+      <Text style={styles.infoLabel}>{label}</Text>
 
-      <Text style={styles.infoValue}>
-        {value}
-      </Text>
+      <Text style={styles.infoValue}>{value}</Text>
     </View>
-  );
+  )
 }
 
-function EmptySection({
-  text,
-}: {
-  text: string;
-}) {
-  return (
-    <Text style={styles.emptyText}>
-      {text}
-    </Text>
-  );
+function EmptySection({ text }: { text: string }) {
+  return <Text style={styles.emptyText}>{text}</Text>
 }
 
 const styles = StyleSheet.create({
@@ -555,4 +472,4 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
   },
-});
+})
