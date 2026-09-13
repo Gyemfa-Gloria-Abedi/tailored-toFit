@@ -333,3 +333,30 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 const server = app.listen(port, () => console.log(`Tailored toFit API running on http://localhost:${port}`));
 process.on('SIGINT', async () => { await prisma.$disconnect(); server.close(); });
 process.on('SIGTERM', async () => { await prisma.$disconnect(); server.close(); });
+
+app.get(
+  '/api/measurements/:id',
+  requireAuth,
+  async (req: AuthRequest, res, next) => {
+    try {
+      const measurement = await prisma.measurement.findFirst({
+        where: {
+          id: req.params.id,
+          client: {
+            ownerId: req.userId,
+          },
+        },
+      });
+
+      if (!measurement) {
+        return res.status(404).json({
+          message: 'Measurement not found.',
+        });
+      }
+
+      return res.json({ measurement });
+    } catch (error) {
+      next(error);
+    }
+  }
+);

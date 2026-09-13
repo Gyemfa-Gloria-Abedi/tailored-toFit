@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router'
+import { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -8,17 +9,17 @@ import {
   Text,
   TextInput,
   View,
-} from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+} from 'react-native'
 
-import { Header, Screen } from '../components';
-import { colors } from '../theme';
+import { Header, PrimaryButton, Screen } from '../components'
+import { colors } from '../theme'
+
 import {
-  getClient,
+  getMeasurement,
   updateMeasurement,
-  type Measurement,
   type CreateMeasurementData,
-} from '../api/clients';
+  type Measurement,
+} from '../api/clients'
 
 const fields = [
   { key: 'neck', label: 'Neck' },
@@ -31,24 +32,21 @@ const fields = [
   { key: 'sleeveLength', label: 'Sleeve Length' },
   { key: 'bicep', label: 'Bicep' },
   { key: 'wrist', label: 'Wrist' },
-] as const;
+] as const
 
-type MeasurementKey = (typeof fields)[number]['key'];
+type MeasurementKey = (typeof fields)[number]['key']
 
 export default function EditMeasurement() {
   const { id, clientId } = useLocalSearchParams<{
-    id?: string;
-    clientId?: string;
-  }>();
+    id?: string
+    clientId?: string
+  }>()
 
-  const [measurement, setMeasurement] =
-    useState<Measurement | null>(null);
+  const [measurement, setMeasurement] = useState<Measurement | null>(null)
 
-  const [unit, setUnit] = useState<'INCH' | 'CM'>('INCH');
+  const [unit, setUnit] = useState<'INCH' | 'CM'>('INCH')
 
-  const [values, setValues] = useState<
-    Record<MeasurementKey, string>
-  >({
+  const [values, setValues] = useState<Record<MeasurementKey, string>>({
     neck: '',
     shoulderWidth: '',
     chest: '',
@@ -59,115 +57,139 @@ export default function EditMeasurement() {
     sleeveLength: '',
     bicep: '',
     wrist: '',
-  });
+  })
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    loadMeasurement();
-  }, [id, clientId]);
+    if (id) {
+      loadMeasurement()
+    }
+  }, [id])
 
   async function loadMeasurement() {
     try {
-      setLoading(true);
-
       if (!id) {
-        throw new Error('Measurement ID is missing.');
+        throw new Error('Measurement ID is missing.')
       }
 
-      /*
-       * We load the client because the client endpoint already
-       * returns its measurements.
-       */
-      if (!clientId) {
-        throw new Error('Client ID is missing.');
-      }
+      setLoading(true)
 
-      const response = await getClient(clientId);
+      const response = await getMeasurement(id)
 
-      const found = response.client.measurements?.find(
-        item => item.id === id
-      );
+      console.log('EDIT MEASUREMENT:', response.measurement)
 
-      if (!found) {
-        throw new Error('Measurement not found.');
-      }
+      const existingMeasurement = response.measurement
 
-      setMeasurement(found);
-      setUnit(found.unit);
+      setMeasurement(existingMeasurement)
+
+      setUnit(existingMeasurement.unit)
 
       setValues({
-        neck: found.neck?.toString() ?? '',
-        shoulderWidth: found.shoulderWidth?.toString() ?? '',
-        chest: found.chest?.toString() ?? '',
-        waist: found.waist?.toString() ?? '',
-        hip: found.hip?.toString() ?? '',
-        backLength: found.backLength?.toString() ?? '',
-        acrossChest: found.acrossChest?.toString() ?? '',
-        sleeveLength: found.sleeveLength?.toString() ?? '',
-        bicep: found.bicep?.toString() ?? '',
-        wrist: found.wrist?.toString() ?? '',
-      });
+        neck:
+          existingMeasurement.neck != null
+            ? String(existingMeasurement.neck)
+            : '',
+
+        shoulderWidth:
+          existingMeasurement.shoulderWidth != null
+            ? String(existingMeasurement.shoulderWidth)
+            : '',
+
+        chest:
+          existingMeasurement.chest != null
+            ? String(existingMeasurement.chest)
+            : '',
+
+        waist:
+          existingMeasurement.waist != null
+            ? String(existingMeasurement.waist)
+            : '',
+
+        hip:
+          existingMeasurement.hip != null
+            ? String(existingMeasurement.hip)
+            : '',
+
+        backLength:
+          existingMeasurement.backLength != null
+            ? String(existingMeasurement.backLength)
+            : '',
+
+        acrossChest:
+          existingMeasurement.acrossChest != null
+            ? String(existingMeasurement.acrossChest)
+            : '',
+
+        sleeveLength:
+          existingMeasurement.sleeveLength != null
+            ? String(existingMeasurement.sleeveLength)
+            : '',
+
+        bicep:
+          existingMeasurement.bicep != null
+            ? String(existingMeasurement.bicep)
+            : '',
+
+        wrist:
+          existingMeasurement.wrist != null
+            ? String(existingMeasurement.wrist)
+            : '',
+      })
     } catch (error) {
+      console.error('LOAD MEASUREMENT ERROR:', error)
+
       Alert.alert(
         'Unable to load measurement',
-        error instanceof Error
-          ? error.message
-          : 'Something went wrong.'
-      );
+        error instanceof Error ? error.message : 'Something went wrong.',
+      )
 
-      router.back();
+      router.back()
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
-  function updateValue(
-    key: MeasurementKey,
-    value: string
-  ) {
-    // Allow only numbers and one decimal point.
-    const cleaned = value.replace(/[^0-9.]/g, '');
+  function updateValue(key: MeasurementKey, value: string) {
+    const cleaned = value.replace(/[^0-9.]/g, '')
 
-    const parts = cleaned.split('.');
+    const parts = cleaned.split('.')
 
     const formatted =
-      parts.length > 2
-        ? `${parts[0]}.${parts.slice(1).join('')}`
-        : cleaned;
+      parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : cleaned
 
     setValues(previous => ({
       ...previous,
       [key]: formatted,
-    }));
+    }))
   }
 
   async function handleSave() {
-    if (!measurement) return;
+    if (!measurement) return
 
     for (const field of fields) {
-      const value = Number(values[field.key]);
+      const value = Number(values[field.key])
 
       if (!values[field.key].trim()) {
         Alert.alert(
           'Missing measurement',
-          `Please enter the ${field.label.toLowerCase()}.`
-        );
-        return;
+          `Please enter the ${field.label.toLowerCase()}.`,
+        )
+        return
       }
 
       if (!Number.isFinite(value) || value <= 0) {
         Alert.alert(
           'Invalid measurement',
-          `${field.label} must be greater than 0.`
-        );
-        return;
+          `${field.label} must be greater than 0.`,
+        )
+        return
       }
     }
 
     try {
-      setSaving(true);
+      setSaving(true)
 
       const data: CreateMeasurementData = {
         unit,
@@ -181,25 +203,20 @@ export default function EditMeasurement() {
         sleeveLength: Number(values.sleeveLength),
         bicep: Number(values.bicep),
         wrist: Number(values.wrist),
-      };
+      }
 
-      await updateMeasurement(
-        measurement.id,
-        data
-      );
+      await updateMeasurement(measurement.id, data)
 
-      router.replace(
-        `/client/${measurement.clientId}` as any
-      );
+      router.replace(`/client/${measurement.clientId}` as any)
     } catch (error) {
       Alert.alert(
         'Unable to save',
         error instanceof Error
           ? error.message
-          : 'Something went wrong while saving the measurement.'
-      );
+          : 'Something went wrong while saving.',
+      )
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
   }
 
@@ -207,158 +224,96 @@ export default function EditMeasurement() {
     return (
       <Screen>
         <View style={styles.loading}>
-          <ActivityIndicator
-            size="large"
-            color={colors.primary}
-          />
-          <Text style={styles.loadingText}>
-            Loading measurement...
-          </Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+
+          <Text style={styles.loadingText}>Loading measurement...</Text>
         </View>
       </Screen>
-    );
+    )
   }
 
   return (
     <Screen>
       <ScrollView
         contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Header
-          title="Edit Measurement"
-          back
-        />
+        keyboardShouldPersistTaps="handled">
+        <Header title="Edit Measurement" back />
 
-        <Text style={styles.title}>
-          Update Measurements
-        </Text>
+        <Text style={styles.title}>Client Measurements</Text>
 
-        <Text style={styles.sub}>
-          Update the client's measurements below.
-        </Text>
+        <Text style={styles.sub}>Update the client's measurements below.</Text>
 
         {/* Unit selector */}
-        <Text style={styles.sectionLabel}>
-          Measurement Unit
-        </Text>
+        <Text style={styles.sectionLabel}>Measurement Unit</Text>
 
         <View style={styles.unitRow}>
           <Pressable
             disabled={saving}
+            onPress={() => setUnit('INCH')}
             style={[
               styles.unitButton,
-              unit === 'INCH' &&
-                styles.unitButtonActive,
-            ]}
-            onPress={() => setUnit('INCH')}
-          >
+              unit === 'INCH' && styles.unitButtonActive,
+            ]}>
             <Text
               style={[
                 styles.unitText,
-                unit === 'INCH' &&
-                  styles.unitTextActive,
-              ]}
-            >
+                unit === 'INCH' && styles.unitTextActive,
+              ]}>
               Inches
             </Text>
           </Pressable>
 
           <Pressable
             disabled={saving}
+            onPress={() => setUnit('CM')}
             style={[
               styles.unitButton,
-              unit === 'CM' &&
-                styles.unitButtonActive,
-            ]}
-            onPress={() => setUnit('CM')}
-          >
+              unit === 'CM' && styles.unitButtonActive,
+            ]}>
             <Text
-              style={[
-                styles.unitText,
-                unit === 'CM' &&
-                  styles.unitTextActive,
-              ]}
-            >
+              style={[styles.unitText, unit === 'CM' && styles.unitTextActive]}>
               Centimetres
             </Text>
           </Pressable>
         </View>
 
-        {/* Measurements */}
-        <View style={styles.measurements}>
-          {fields.map(field => (
-            <View
-              key={field.key}
-              style={styles.row}
-            >
-              <Text style={styles.label}>
-                {field.label}
-              </Text>
+        {/* Measurement fields */}
+        {fields.map(field => (
+          <View key={field.key} style={styles.row}>
+            <Text style={styles.label}>{field.label}</Text>
 
-              <View style={styles.inputWrap}>
-                <TextInput
-                  value={values[field.key]}
-                  onChangeText={value =>
-                    updateValue(
-                      field.key,
-                      value
-                    )
-                  }
-                  keyboardType="decimal-pad"
-                  editable={!saving}
-                  placeholder="0"
-                  placeholderTextColor={
-                    colors.muted
-                  }
-                  style={styles.value}
-                />
-
-                <Text style={styles.unit}>
-                  {unit === 'INCH'
-                    ? 'in'
-                    : 'cm'}
-                </Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* Save */}
-        <Pressable
-          disabled={saving}
-          onPress={handleSave}
-          style={[
-            styles.saveButton,
-            saving &&
-              styles.saveButtonDisabled,
-          ]}
-        >
-          {saving ? (
-            <View style={styles.savingContent}>
-              <ActivityIndicator
-                size="small"
-                color="#fff"
+            <View style={styles.inputWrap}>
+              <TextInput
+                value={values[field.key]}
+                onChangeText={value => updateValue(field.key, value)}
+                keyboardType="decimal-pad"
+                placeholder="0"
+                placeholderTextColor={colors.muted}
+                editable={!saving}
+                style={styles.value}
               />
-              <Text style={styles.saveText}>
-                Saving...
-              </Text>
+
+              <Text style={styles.unit}>{unit === 'INCH' ? 'in' : 'cm'}</Text>
             </View>
-          ) : (
-            <Text style={styles.saveText}>
-              Save Changes
-            </Text>
-          )}
-        </Pressable>
+          </View>
+        ))}
+
+        <View style={styles.buttonContainer}>
+          <PrimaryButton
+            label={saving ? 'Saving...' : 'Save Changes'}
+            onPress={handleSave}
+            disabled={saving}
+          />
+        </View>
       </ScrollView>
     </Screen>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   content: {
     padding: 16,
-    paddingBottom: 40,
+    paddingBottom: 30,
   },
 
   loading: {
@@ -377,7 +332,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '800',
     color: colors.text,
-    marginTop: 4,
   },
 
   sub: {
@@ -421,10 +375,6 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 
-  measurements: {
-    marginBottom: 20,
-  },
-
   row: {
     height: 50,
     flexDirection: 'row',
@@ -435,54 +385,49 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    fontSize: 11,
-    color: colors.text,
-  },
+  flex: 1,
+  fontSize: 12,
+  fontWeight: '500',
+  color: colors.text,
+  paddingRight: 16,
+},
 
   inputWrap: {
-    height: 34,
-    width: 82,
-    backgroundColor: '#fff',
+    width: 105,
+    height: 38,
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#F7F5FA',
+    borderRadius: 9,
+    paddingLeft: 10,
+    paddingRight: 10,
   },
 
   value: {
     flex: 1,
+    minWidth: 0,
+    height: 38,
     textAlign: 'right',
-    fontSize: 11,
-    paddingHorizontal: 6,
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.text,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
     borderWidth: 0,
     outlineWidth: 0,
+    ...(typeof document !== 'undefined' ? { outline: 'none' } : {}),
   },
 
   unit: {
-    fontSize: 9,
+    width: 22,
+    marginLeft: 7,
+    fontSize: 10,
+    fontWeight: '600',
     color: colors.muted,
-    paddingRight: 8,
+    textAlign: 'left',
   },
 
-  saveButton: {
-    height: 48,
-    borderRadius: 10,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+  buttonContainer: {
+    marginTop: 20,
   },
-
-  saveButtonDisabled: {
-    opacity: 0.7,
-  },
-
-  saveText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '800',
-  },
-
-  savingContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-});
+})

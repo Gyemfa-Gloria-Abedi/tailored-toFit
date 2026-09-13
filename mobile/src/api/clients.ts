@@ -28,16 +28,16 @@ export type Measurement = {
   clientId: string;
   unit: 'INCH' | 'CM';
 
-  neck?: number | null;
-  shoulderWidth?: number | null;
-  chest?: number | null;
-  waist?: number | null;
-  hip?: number | null;
-  backLength?: number | null;
-  acrossChest?: number | null;
-  sleeveLength?: number | null;
-  bicep?: number | null;
-  wrist?: number | null;
+  neck?: number | string | null;
+  shoulderWidth?: number | string | null;
+  chest?: number | string | null;
+  waist?: number | string | null;
+  hip?: number | string | null;
+  backLength?: number | string | null;
+  acrossChest?: number | string | null;
+  sleeveLength?: number | string | null;
+  bicep?: number | string | null;
+  wrist?: number | string | null;
 
   createdAt: string;
 };
@@ -167,5 +167,13 @@ export async function updateMeasurement(
       method: 'PATCH',
       body: data,
     }
+  );
+}
+
+export async function getMeasurement(
+  measurementId: string
+) {
+  return apiRequest<{ measurement: Measurement }>(
+    `/api/measurements/${measurementId}`
   );
 }
