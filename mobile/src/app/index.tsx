@@ -1,23 +1,19 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { Screen, PrimaryButton, OutlineButton } from '../components';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { OutlineButton, PrimaryButton, Screen } from '../components';
 import { colors } from '../theme';
 
 export default function Index() {
   return (
-    <Screen dark>
+    <Screen>
       <View style={styles.container}>
-        {/* Brand mark */}
-        {/* <View style={styles.brandMark}>
-          <Text style={styles.brandIcon}>✦</Text>
-
-          <View style={styles.tape}>
-            <Text style={styles.tapeText}>⌁</Text>
-          </View>
-        </View> */}
-
         {/* Logo */}
-        <Text style={styles.logo}>
+        <Image
+          source={require('../../assets/images/logo.png')}
+          style={styles.model}
+          resizeMode="cover"
+        />
+        <Text style={styles.logoText}>
           Tailored <Text style={styles.gold}>toFit</Text>
         </Text>
 
@@ -27,7 +23,7 @@ export default function Index() {
 
         {/* Model image */}
         <Image
-          source={require('../../assets/images/senator.png')}
+          source={require('../../assets/images/tailoringMannequin.png')}
           style={styles.model}
           resizeMode="cover"
         />
@@ -62,22 +58,12 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: {
+    display: 'flex',
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingVertical: 28,
     paddingHorizontal: 24,
-  },
 
-  brandMark: {
-    marginTop: 12,
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    borderWidth: 2,
-    borderColor: '#D7A91F',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 
   brandIcon: {
@@ -85,26 +71,13 @@ const styles = StyleSheet.create({
     fontSize: 42,
   },
 
-  tape: {
-    position: 'absolute',
-    right: -8,
-    bottom: -2,
-    width: 28,
-    height: 20,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: colors.gold,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
   tapeText: {
     color: colors.gold,
     fontSize: 15,
   },
 
-  logo: {
-    color: '#fff',
+  logoText: {
+    color: '#00001A',
     fontSize: 27,
     fontWeight: '700',
     fontFamily: 'serif',
@@ -116,15 +89,15 @@ const styles = StyleSheet.create({
   },
 
   tag: {
-    color: '#fff',
+    color: '#00001A',
     fontSize: 10,
     letterSpacing: 1.6,
     marginTop: -4,
   },
 
   model: {
-    width: 170,
-    height: 210,
+    width: 300,
+    height: 300,
     opacity: 0.72,
     marginVertical: 4,
   },
@@ -138,12 +111,12 @@ const styles = StyleSheet.create({
   },
 
   actions: {
-    width: '100%',
+    width: 300,
     gap: 10,
   },
 
   footer: {
-    color: '#fff',
+    color: '#00001A',
     fontSize: 10,
     opacity: 0.85,
     marginTop: 8,

@@ -136,32 +136,33 @@ export default function ClientDetails() {
         </View>
 
         <View style={styles.actions}>
-  <Pressable
-    style={styles.primaryAction}
-    onPress={() =>
-      router.push(`/new-measurement?clientId=${client.id}` as any)
-    }
-  >
-    <Text style={styles.primaryActionText}>
-      Add Measurement
-    </Text>
-  </Pressable>
+          <Pressable
+            style={styles.primaryAction}
+            onPress={() =>
+              router.push(`/new-measurement?clientId=${client.id}` as any)
+            }>
+            <Text style={styles.primaryActionText}>Add Measurement</Text>
+          </Pressable>
 
-  {latestMeasurement && (
-    <Pressable
-      style={styles.secondaryAction}
-      onPress={() =>
-        router.push(
-          `/edit-measurement?id=${latestMeasurement.id}&clientId=${client.id}` as any
-        )
-      }
-    >
-      <Text style={styles.secondaryActionText}>
-        Update Measurement
-      </Text>
-    </Pressable>
-  )}
-</View>
+          {latestMeasurement && (
+            <Pressable
+              style={styles.secondaryAction}
+              onPress={() =>
+                router.push(
+                  `/edit-measurement?id=${latestMeasurement.id}&clientId=${client.id}` as any,
+                )
+              }>
+              <Text style={styles.secondaryActionText}>Update Measurement</Text>
+            </Pressable>
+          )}
+          <Pressable
+            style={styles.aiDesignButton}
+            onPress={() =>
+              router.push(`/ai-design?clientId=${client.id}` as any)
+            }>
+            <Text style={styles.aiDesignButtonText}>✦ Create AI Design</Text>
+          </Pressable>
+        </View>
 
         <Section title="Contact">
           <InfoRow label="Phone" value={client.phone || 'Not provided'} />
@@ -471,5 +472,18 @@ const styles = StyleSheet.create({
     color: '#A42828',
     fontSize: 11,
     fontWeight: '700',
+  },
+  aiDesignButton: {
+    marginTop: 10,
+    minHeight: 46,
+    borderRadius: 9,
+    backgroundColor: colors.deep,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  aiDesignButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '800',
   },
 })

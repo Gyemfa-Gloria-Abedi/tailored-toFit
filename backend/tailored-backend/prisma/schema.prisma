@@ -38,6 +38,7 @@ model Client {
   fitProfiles     FitProfile[]
   measurements    Measurement[]
   recommendations StyleRecommendation[]
+  aiDesigns      AIDesign[]
 
   @@index([ownerId])
 }
@@ -103,6 +104,24 @@ model SavedStyle {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model AIDesign {
+  id          String   @id @default(cuid())
+  clientId    String
+  name        String
+  garmentType String
+  style       String
+  fabric      String
+  colour      String
+  occasion    String
+  imageUrl    String
+  prompt      String
+  designData  Json?
+  createdAt   DateTime @default(now())
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, createdAt])
 }
 
 enum Gender {

@@ -126,27 +126,30 @@ export default function NewMeasurement() {
     useState(false);
 
   function updateValue(
-    field: MeasurementField,
-    value: string
-  ) {
-    // Only allow numbers and decimal points.
-    const cleaned = value.replace(
-      /[^0-9.]/g,
-      ''
-    );
+  field: MeasurementField,
+  value: string
+) {
+  const cleaned = value.replace(/[^0-9.]/g, '');
 
-    setValues((current) => ({
+  const parts = cleaned.split('.');
+
+  const formatted =
+    parts.length > 2
+      ? `${parts[0]}.${parts.slice(1).join('')}`
+      : cleaned;
+
+  setValues((current) => ({
+    ...current,
+    [field]: formatted,
+  }));
+
+  if (errors[field]) {
+    setErrors((current) => ({
       ...current,
-      [field]: cleaned,
+      [field]: undefined,
     }));
-
-    if (errors[field]) {
-      setErrors((current) => ({
-        ...current,
-        [field]: undefined,
-      }));
-    }
   }
+}
 
   function validate() {
     const newErrors: Errors = {};
@@ -428,7 +431,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.muted,
     marginTop: 4,
-    marginBottom: 18,
+    marginBottom: 20,
     lineHeight: 15,
   },
 
@@ -439,26 +442,27 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
+  /* -------------------------
+     UNIT SELECTOR
+  ------------------------- */
+
   unitRow: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 15,
+    marginBottom: 18,
   },
 
   unitButton: {
     flex: 1,
-    minHeight: 42,
-    borderWidth: 1,
-    borderColor: colors.line,
+    height: 42,
     borderRadius: 9,
-    backgroundColor: '#fff',
+    backgroundColor: '#F7F5FA',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   unitButtonSelected: {
     backgroundColor: colors.purple,
-    borderColor: colors.purple,
   },
 
   unitButtonText: {
@@ -471,55 +475,100 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 
+  /* -------------------------
+     MEASUREMENT FIELD
+  ------------------------- */
+
   field: {
-    marginBottom: 10,
+    minHeight: 54,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+
+    paddingVertical: 7,
   },
 
   label: {
-    fontSize: 11,
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '500',
     color: colors.text,
-    fontWeight: '600',
-    marginBottom: 5,
+    paddingRight: 16,
   },
 
+  /* -------------------------
+     INPUT
+  ------------------------- */
+
   inputWrap: {
-    height: 42,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 8,
-    backgroundColor: '#fff',
+    width: 105,
+    height: 38,
+
     flexDirection: 'row',
     alignItems: 'center',
+
+    backgroundColor: '#F7F5FA',
+    borderRadius: 9,
+
+    paddingLeft: 10,
+    paddingRight: 10,
   },
 
   inputError: {
+    backgroundColor: '#FFF5F5',
+    borderWidth: 1,
     borderColor: '#C84A4A',
   },
 
   value: {
     flex: 1,
+    minWidth: 0,
+    height: 38,
+
     textAlign: 'right',
-    fontSize: 12,
+
+    fontSize: 13,
+    fontWeight: '600',
     color: colors.text,
-    paddingHorizontal: 10,
-    borderColor:'none',
+
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+
     borderWidth: 0,
     outlineWidth: 0,
   },
 
   unit: {
+    width: 22,
+
+    marginLeft: 7,
+
     fontSize: 10,
+    fontWeight: '600',
     color: colors.muted,
-    paddingRight: 10,
+
+    textAlign: 'left',
   },
+
+  /* -------------------------
+     VALIDATION
+  ------------------------- */
 
   errorText: {
     color: '#A42828',
     fontSize: 9,
-    marginTop: 3,
+    marginTop: 4,
+    marginLeft: 2,
   },
 
+  /* -------------------------
+     SAVE BUTTON
+  ------------------------- */
+
   buttonContainer: {
-    marginTop: 18,
+    marginTop: 22,
   },
 });

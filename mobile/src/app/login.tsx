@@ -11,12 +11,11 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 import {
-  Screen,
-  PrimaryButton,
   OutlineButton,
+  PrimaryButton,
+  Screen,
 } from '../components';
 
-import { colors } from '../theme';
 import { useAuth } from '../auth/AuthContext';
 
 type LoginErrors = {
@@ -126,7 +125,7 @@ export default function Login() {
   }
 
   return (
-    <Screen dark>
+    <Screen>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={
@@ -136,20 +135,13 @@ export default function Login() {
         }
       >
         <View style={styles.content}>
-          <Text style={styles.logo}>
-            Tailored{' '}
-            <Text style={styles.gold}>
-              toFit
-            </Text>
-          </Text>
 
           <Text style={styles.title}>
-            Welcome back
+            Welcome Back
           </Text>
 
           <Text style={styles.subtitle}>
-            Sign in to continue to your
-            tailoring studio.
+            Sign in to continue 
           </Text>
 
           {errors.form ? (
@@ -218,8 +210,8 @@ export default function Login() {
                 {errors.password}
               </Text>
             ) : null}
-
-            <PrimaryButton
+            <View style={styles.buttonContainer}>
+              <PrimaryButton
               label={
                 submitting
                   ? 'Signing in...'
@@ -237,11 +229,12 @@ export default function Login() {
                 )
               }
             />
+            </View>
           </View>
         </View>
 
         <Text style={styles.footer}>
-          Made for tailors. Designed for
+          Tailored toFit. Made for tailors, Designed for
           perfection.
         </Text>
       </KeyboardAvoidingView>
@@ -257,24 +250,17 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    marginTop: 60,
-  },
-
-  logo: {
-    color: '#fff',
-    fontSize: 28,
-    fontWeight: '700',
-    fontFamily: 'serif',
-    marginBottom: 50,
-  },
-
-  gold: {
-    color: colors.gold,
+    marginTop: 30,
+    display: 'flex',
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 28,
+    paddingHorizontal: 24,
   },
 
   title: {
-    color: '#fff',
-    fontSize: 28,
+    color: '#010131',
+    fontSize: 32,
     fontWeight: '700',
     marginBottom: 10,
   },
@@ -291,7 +277,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    color: '#fff',
+    color: '#010131',
     fontSize: 13,
     fontWeight: '600',
     marginTop: 8,
@@ -299,12 +285,12 @@ const styles = StyleSheet.create({
 
   input: {
     height: 52,
-    borderWidth: 1,
-    borderColor: '#444',
+    borderWidth: 0,
+    borderColor: 'none',
     borderRadius: 10,
     paddingHorizontal: 16,
-    color: '#fff',
-    backgroundColor: '#171717',
+    color: '#010131',
+    backgroundColor: '#dcdada',
     fontSize: 15,
   },
 
@@ -334,9 +320,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
   },
+  buttonContainer: {
+    marginTop: 32,
+    gap: 10,
+  },
 
   footer: {
-    color: '#fff',
+    color: '#010131',
     fontSize: 10,
     opacity: 0.7,
     textAlign: 'center',

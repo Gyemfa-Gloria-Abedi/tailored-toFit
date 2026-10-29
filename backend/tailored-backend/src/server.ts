@@ -6,11 +6,12 @@ import { hashPassword, requireAuth, signToken, verifyPassword } from './auth.js'
 import { clientSchema, loginSchema, measurementSchema, registerSchema, savedStyleSchema } from './validation.js';
 import { generateFitProfile, recommendationSeed } from './fit.js';
 import type { AuthRequest } from './types.js';
+import { registerAIDesignRoutes } from './ai-designs-route.js';
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
 app.use(cors({ origin: process.env.CORS_ORIGIN === '*' ? true : process.env.CORS_ORIGIN?.split(',') }));
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '12mb' }));
 
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'tailored-tofit-api', version: '1.0.0' }));
 
@@ -283,6 +284,8 @@ app.patch(
     }
   }
 );
+
+registerAIDesignRoutes(app);
 
 app.post('/api/clients/:id/fit-profile/generate', requireAuth, async (req: AuthRequest, res, next) => {
   try {

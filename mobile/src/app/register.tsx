@@ -134,7 +134,7 @@ export default function Register() {
   }
 
   return (
-    <Screen dark>
+    <Screen>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={
@@ -144,20 +144,9 @@ export default function Register() {
         }
       >
         <View style={styles.content}>
-          <Text style={styles.logo}>
-            Tailored{' '}
-            <Text style={styles.gold}>
-              toFit
-            </Text>
-          </Text>
 
           <Text style={styles.title}>
-            Create your account
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Set up your tailoring studio and
-            start managing your clients.
+            Create Account
           </Text>
 
           {errors.form ? (
@@ -172,7 +161,7 @@ export default function Register() {
 
           <View style={styles.form}>
             <Text style={styles.label}>
-              Your name
+              Name
             </Text>
 
             <TextInput
@@ -229,25 +218,6 @@ export default function Register() {
             ) : null}
 
             <Text style={styles.label}>
-              Business name
-            </Text>
-
-            <TextInput
-              value={businessName}
-              onChangeText={(text) => {
-                setBusinessName(text);
-                clearFieldError(
-                  'businessName'
-                );
-              }}
-              placeholder="Your tailoring business"
-              placeholderTextColor="#8A8A8A"
-              autoCapitalize="words"
-              style={styles.input}
-              editable={!submitting}
-            />
-
-            <Text style={styles.label}>
               Password
             </Text>
 
@@ -274,8 +244,9 @@ export default function Register() {
                 {errors.password}
               </Text>
             ) : null}
-
-            <PrimaryButton
+  
+            <View style={styles.buttonContainer}>
+              <PrimaryButton
               label={
                 submitting
                   ? 'Creating account...'
@@ -293,11 +264,13 @@ export default function Register() {
                 )
               }
             />
+            </View>
+            
           </View>
         </View>
 
         <Text style={styles.footer}>
-          Made for tailors. Designed for
+          Tailored toFit. Made for tailors, Designed for
           perfection.
         </Text>
       </KeyboardAvoidingView>
@@ -314,32 +287,18 @@ const styles = StyleSheet.create({
 
   content: {
     marginTop: 30,
-  },
-
-  logo: {
-    color: '#fff',
-    fontSize: 28,
-    fontWeight: '700',
-    fontFamily: 'serif',
-    marginBottom: 35,
-  },
-
-  gold: {
-    color: colors.gold,
+    display: 'flex',
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 28,
+    paddingHorizontal: 24,
   },
 
   title: {
-    color: '#fff',
-    fontSize: 28,
+    color: '#010131',
+    fontSize: 32,
     fontWeight: '700',
     marginBottom: 10,
-  },
-
-  subtitle: {
-    color: '#B8B8B8',
-    fontSize: 14,
-    lineHeight: 21,
-    marginBottom: 18,
   },
 
   form: {
@@ -347,7 +306,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    color: '#fff',
+    color: '#010131',
     fontSize: 13,
     fontWeight: '600',
     marginTop: 6,
@@ -355,12 +314,13 @@ const styles = StyleSheet.create({
 
   input: {
     height: 48,
-    borderWidth: 1,
-    borderColor: '#444',
+    borderWidth: 0,
+    borderColor: 'none',
     borderRadius: 10,
     paddingHorizontal: 16,
-    color: '#fff',
-    backgroundColor: '#171717',
+    marginBottom: 4,
+    color: '#010131',
+    backgroundColor: '#dcdada',
     fontSize: 15,
   },
 
@@ -390,9 +350,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
   },
+  buttonContainer: {
+    marginTop: 32,
+    gap: 10,
+  },
 
   footer: {
-    color: '#fff',
+    color: '#010131',
     fontSize: 10,
     opacity: 0.7,
     textAlign: 'center',
