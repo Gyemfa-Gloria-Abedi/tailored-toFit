@@ -1,201 +1,151 @@
 import {
   KeyboardAvoidingView,
   Platform,
+  registerCallableModule,
   StyleSheet,
   Text,
   TextInput,
   View,
-} from 'react-native';
+} from 'react-native'
 
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router } from 'expo-router'
+import { useState } from 'react'
 
-import {
-  OutlineButton,
-  PrimaryButton,
-  Screen,
-} from '../components';
+import { OutlineButton, PrimaryButton, Screen } from '../components'
 
-import { useAuth } from '../auth/AuthContext';
-import { colors } from '../theme';
+import { useAuth } from '../auth/AuthContext'
+import { colors } from '../theme'
 
 type RegisterErrors = {
-  name?: string;
-  email?: string;
-  businessName?: string;
-  password?: string;
-  form?: string;
-};
+  name?: string
+  email?: string
+  businessName?: string
+  password?: string
+  form?: string
+}
 
 export default function Register() {
-  const { register } = useAuth();
+  const { register } = useAuth()
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] =
-    useState('');
-  const [businessName, setBusinessName] =
-    useState('');
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [businessName, setBusinessName] = useState('')
 
-  const [errors, setErrors] =
-    useState<RegisterErrors>({});
+  const [errors, setErrors] = useState<RegisterErrors>({})
 
-  const [submitting, setSubmitting] =
-    useState(false);
+  const [submitting, setSubmitting] = useState(false)
 
   function validateForm(): boolean {
-    const newErrors: RegisterErrors = {};
+    const newErrors: RegisterErrors = {}
 
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
+    const trimmedName = name.trim()
+    const trimmedEmail = email.trim()
 
     if (!trimmedName) {
-      newErrors.name =
-        'Please enter your name.';
+      newErrors.name = 'Please enter your name.'
     } else if (trimmedName.length < 2) {
-      newErrors.name =
-        'Your name must contain at least 2 characters.';
+      newErrors.name = 'Your name must contain at least 2 characters.'
     }
 
     if (!trimmedEmail) {
-      newErrors.email =
-        'Please enter your email address.';
-    } else if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        trimmedEmail
-      )
-    ) {
-      newErrors.email =
-        'Please enter a valid email address.';
+      newErrors.email = 'Please enter your email address.'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      newErrors.email = 'Please enter a valid email address.'
     }
 
     if (!password) {
-      newErrors.password =
-        'Please enter a password.';
+      newErrors.password = 'Please enter a password.'
     } else if (password.length < 8) {
-      newErrors.password =
-        'Password must contain at least 8 characters.';
+      newErrors.password = 'Password must contain at least 8 characters.'
     }
 
-    setErrors(newErrors);
+    setErrors(newErrors)
 
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(newErrors).length === 0
   }
 
-  function clearFieldError(
-    field: keyof RegisterErrors
-  ) {
+  function clearFieldError(field: keyof RegisterErrors) {
     if (errors[field] || errors.form) {
-      setErrors((current) => ({
+      setErrors(current => ({
         ...current,
         [field]: undefined,
         form: undefined,
-      }));
+      }))
     }
   }
 
   async function handleRegister() {
     if (!validateForm()) {
-      return;
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
-      setErrors({});
+      setErrors({})
 
-      await register(
-        name.trim(),
-        email.trim(),
-        password,
-        businessName.trim()
-      );
+      await register(name.trim(), email.trim(), password, businessName.trim())
 
-      router.replace('/home' as any);
+      router.replace('/home' as any)
     } catch (error) {
-      console.error(
-        'Registration error:',
-        error
-      );
+      console.error('Registration error:', error)
 
-      let message =
-        'Unable to create your account. Please try again.';
+      let message = 'Unable to create your account. Please try again.'
 
       if (error instanceof Error) {
-        message = error.message;
+        message = error.message
       }
 
       setErrors({
         form: message,
-      });
+      })
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
   }
 
   return (
-    <Screen>
+    <Screen style={styles.registerPage}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={
-          Platform.OS === 'ios'
-            ? 'padding'
-            : undefined
-        }
-      >
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.content}>
-
-          <Text style={styles.title}>
-            Create Account
-          </Text>
+          <Text style={styles.title}>Create Account</Text>
 
           {errors.form ? (
             <View style={styles.formError}>
-              <Text
-                style={styles.formErrorText}
-              >
-                {errors.form}
-              </Text>
+              <Text style={styles.formErrorText}>{errors.form}</Text>
             </View>
           ) : null}
 
           <View style={styles.form}>
-            <Text style={styles.label}>
-              Name
-            </Text>
+            <Text style={styles.label}>Name</Text>
 
             <TextInput
               value={name}
-              onChangeText={(text) => {
-                setName(text);
-                clearFieldError('name');
+              onChangeText={text => {
+                setName(text)
+                clearFieldError('name')
               }}
               placeholder="Enter your name"
               placeholderTextColor="#8A8A8A"
               autoCapitalize="words"
-              style={[
-                styles.input,
-                errors.name &&
-                  styles.inputError,
-              ]}
+              style={[styles.input, errors.name && styles.inputError]}
               editable={!submitting}
             />
 
             {errors.name ? (
-              <Text style={styles.errorText}>
-                {errors.name}
-              </Text>
+              <Text style={styles.errorText}>{errors.name}</Text>
             ) : null}
 
-            <Text style={styles.label}>
-              Email address
-            </Text>
+            <Text style={styles.label}>Email address</Text>
 
             <TextInput
               value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                clearFieldError('email');
+              onChangeText={text => {
+                setEmail(text)
+                clearFieldError('email')
               }}
               placeholder="Enter your email"
               placeholderTextColor="#8A8A8A"
@@ -203,82 +153,60 @@ export default function Register() {
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="email"
-              style={[
-                styles.input,
-                errors.email &&
-                  styles.inputError,
-              ]}
+              style={[styles.input, errors.email && styles.inputError]}
               editable={!submitting}
             />
 
             {errors.email ? (
-              <Text style={styles.errorText}>
-                {errors.email}
-              </Text>
+              <Text style={styles.errorText}>{errors.email}</Text>
             ) : null}
 
-            <Text style={styles.label}>
-              Password
-            </Text>
+            <Text style={styles.label}>Password</Text>
 
             <TextInput
               value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                clearFieldError('password');
+              onChangeText={text => {
+                setPassword(text)
+                clearFieldError('password')
               }}
               placeholder="Minimum 8 characters"
               placeholderTextColor="#8A8A8A"
               secureTextEntry
               autoComplete="new-password"
-              style={[
-                styles.input,
-                errors.password &&
-                  styles.inputError,
-              ]}
+              style={[styles.input, errors.password && styles.inputError]}
               editable={!submitting}
             />
 
             {errors.password ? (
-              <Text style={styles.errorText}>
-                {errors.password}
-              </Text>
+              <Text style={styles.errorText}>{errors.password}</Text>
             ) : null}
-  
+
             <View style={styles.buttonContainer}>
               <PrimaryButton
-              label={
-                submitting
-                  ? 'Creating account...'
-                  : 'Create account'
-              }
-              onPress={handleRegister}
-              disabled={submitting}
-            />
+                label={submitting ? 'Creating account...' : 'Create account'}
+                onPress={handleRegister}
+                disabled={submitting}
+              />
 
-            <OutlineButton
-              label="Already have an account? Login"
-              onPress={() =>
-                router.push(
-                  '/login' as any
-                )
-              }
-            />
+              <OutlineButton
+                label="Already have an account? Login"
+                onPress={() => router.push('/login' as any)}
+              />
             </View>
-            
           </View>
+          <Text style={styles.footer}>
+            Tailored toFit. Made for tailors, Designed for perfection.
+          </Text>
         </View>
-
-        <Text style={styles.footer}>
-          Tailored toFit. Made for tailors, Designed for
-          perfection.
-        </Text>
       </KeyboardAvoidingView>
     </Screen>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
+  registerPage: {
+    overflowY: 'auto',
+  },
   container: {
     flex: 1,
     padding: 24,
@@ -352,6 +280,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 32,
+    marginBottom: 20,
     gap: 10,
   },
 
@@ -360,6 +289,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     opacity: 0.7,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 30,
   },
-});
+})

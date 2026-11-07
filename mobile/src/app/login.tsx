@@ -5,250 +5,188 @@ import {
   Text,
   TextInput,
   View,
-} from 'react-native';
+} from 'react-native'
 
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router } from 'expo-router'
+import { useState } from 'react'
 
-import {
-  OutlineButton,
-  PrimaryButton,
-  Screen,
-} from '../components';
+import { OutlineButton, PrimaryButton, Screen } from '../components'
 
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/AuthContext'
 
 type LoginErrors = {
-  email?: string;
-  password?: string;
-  form?: string;
-};
+  email?: string
+  password?: string
+  form?: string
+}
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login } = useAuth()
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
-  const [errors, setErrors] =
-    useState<LoginErrors>({});
+  const [errors, setErrors] = useState<LoginErrors>({})
 
-  const [submitting, setSubmitting] =
-    useState(false);
+  const [submitting, setSubmitting] = useState(false)
 
   function validateForm(): boolean {
-    const newErrors: LoginErrors = {};
+    const newErrors: LoginErrors = {}
 
-    const trimmedEmail = email.trim();
+    const trimmedEmail = email.trim()
 
     if (!trimmedEmail) {
-      newErrors.email =
-        'Please enter your email address.';
-    } else if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        trimmedEmail
-      )
-    ) {
-      newErrors.email =
-        'Please enter a valid email address.';
+      newErrors.email = 'Please enter your email address.'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      newErrors.email = 'Please enter a valid email address.'
     }
 
     if (!password) {
-      newErrors.password =
-        'Please enter your password.';
+      newErrors.password = 'Please enter your password.'
     }
 
-    setErrors(newErrors);
+    setErrors(newErrors)
 
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(newErrors).length === 0
   }
 
   function handleEmailChange(text: string) {
-    setEmail(text);
+    setEmail(text)
 
     if (errors.email || errors.form) {
-      setErrors((current) => ({
+      setErrors(current => ({
         ...current,
         email: undefined,
         form: undefined,
-      }));
+      }))
     }
   }
 
   function handlePasswordChange(text: string) {
-    setPassword(text);
+    setPassword(text)
 
     if (errors.password || errors.form) {
-      setErrors((current) => ({
+      setErrors(current => ({
         ...current,
         password: undefined,
         form: undefined,
-      }));
+      }))
     }
   }
 
   async function handleLogin() {
     if (!validateForm()) {
-      return;
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
-      setErrors({});
+      setErrors({})
 
-      await login(
-        email.trim(),
-        password
-      );
+      await login(email.trim(), password)
 
-      router.replace('/home' as any);
+      router.replace('/home' as any)
     } catch (error) {
-      console.error(
-        'Login error:',
-        error
-      );
+      console.error('Login error:', error)
 
-      let message =
-        'Unable to log in. Please try again.';
+      let message = 'Unable to log in. Please try again.'
 
       if (error instanceof Error) {
-        message = error.message;
+        message = error.message
       }
 
       setErrors({
         form: message,
-      });
+      })
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
   }
 
   return (
-    <Screen>
+    <Screen style={styles.loginPage}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={
-          Platform.OS === 'ios'
-            ? 'padding'
-            : undefined
-        }
-      >
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.content}>
+          <Text style={styles.title}>Welcome Back</Text>
 
-          <Text style={styles.title}>
-            Welcome Back
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Sign in to continue 
-          </Text>
+          <Text style={styles.subtitle}>Sign in to continue</Text>
 
           {errors.form ? (
             <View style={styles.formError}>
-              <Text
-                style={styles.formErrorText}
-              >
-                {errors.form}
-              </Text>
+              <Text style={styles.formErrorText}>{errors.form}</Text>
             </View>
           ) : null}
 
           <View style={styles.form}>
-            <Text style={styles.label}>
-              Email address
-            </Text>
+            <Text style={styles.label}>Email address</Text>
 
             <TextInput
               value={email}
-              onChangeText={
-                handleEmailChange
-              }
+              onChangeText={handleEmailChange}
               placeholder="Enter your email"
               placeholderTextColor="#8A8A8A"
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="email"
-              style={[
-                styles.input,
-                errors.email &&
-                  styles.inputError,
-              ]}
+              style={[styles.input, errors.email && styles.inputError]}
               editable={!submitting}
             />
 
             {errors.email ? (
-              <Text style={styles.errorText}>
-                {errors.email}
-              </Text>
+              <Text style={styles.errorText}>{errors.email}</Text>
             ) : null}
 
-            <Text style={styles.label}>
-              Password
-            </Text>
+            <Text style={styles.label}>Password</Text>
 
             <TextInput
               value={password}
-              onChangeText={
-                handlePasswordChange
-              }
+              onChangeText={handlePasswordChange}
               placeholder="Enter your password"
               placeholderTextColor="#8A8A8A"
               secureTextEntry
               autoComplete="password"
-              style={[
-                styles.input,
-                errors.password &&
-                  styles.inputError,
-              ]}
+              style={[styles.input, errors.password && styles.inputError]}
               editable={!submitting}
             />
 
             {errors.password ? (
-              <Text style={styles.errorText}>
-                {errors.password}
-              </Text>
+              <Text style={styles.errorText}>{errors.password}</Text>
             ) : null}
             <View style={styles.buttonContainer}>
               <PrimaryButton
-              label={
-                submitting
-                  ? 'Signing in...'
-                  : 'Login'
-              }
-              onPress={handleLogin}
-              disabled={submitting}
-            />
+                label={submitting ? 'Signing in...' : 'Login'}
+                onPress={handleLogin}
+                disabled={submitting}
+              />
 
-            <OutlineButton
-              label="Create an account"
-              onPress={() =>
-                router.push(
-                  '/register' as any
-                )
-              }
-            />
+              <OutlineButton
+                label="Create an account"
+                onPress={() => router.push('/register' as any)}
+              />
             </View>
+            <Text style={styles.footer}>
+              Tailored toFit. Made for tailors, Designed for perfection.
+            </Text>
           </View>
         </View>
-
-        <Text style={styles.footer}>
-          Tailored toFit. Made for tailors, Designed for
-          perfection.
-        </Text>
       </KeyboardAvoidingView>
     </Screen>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
+  loginPage: {
+    overflowY: 'auto',
+  },
   container: {
     flex: 1,
     padding: 24,
     justifyContent: 'space-between',
   },
-
   content: {
     marginTop: 30,
     display: 'flex',
@@ -322,6 +260,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 32,
+    marginBottom: 20,
     gap: 10,
   },
 
@@ -332,4 +271,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
-});
+})

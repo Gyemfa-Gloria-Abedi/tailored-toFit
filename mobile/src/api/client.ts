@@ -39,12 +39,6 @@ export async function apiRequest<T>(
     }
   }
 
-  console.log('API REQUEST:', {
-    path,
-    method: options.method || 'GET',
-    hasToken: !!token,
-  });
-
   const response = await fetch(
     `${API_URL}${path}`,
     {

@@ -78,8 +78,6 @@ export default function EditMeasurement() {
 
       const response = await getMeasurement(id)
 
-      console.log('EDIT MEASUREMENT:', response.measurement)
-
       const existingMeasurement = response.measurement
 
       setMeasurement(existingMeasurement)
@@ -224,7 +222,7 @@ export default function EditMeasurement() {
     return (
       <Screen>
         <View style={styles.loading}>
-          <ActivityIndicator size="large" color={colors.primary} />
+          <ActivityIndicator size="large" color={colors.purple} />
 
           <Text style={styles.loadingText}>Loading measurement...</Text>
         </View>
@@ -362,7 +360,7 @@ const styles = StyleSheet.create({
   },
 
   unitButtonActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.purple,
   },
 
   unitText: {
@@ -385,12 +383,12 @@ const styles = StyleSheet.create({
   },
 
   label: {
-  flex: 1,
-  fontSize: 12,
-  fontWeight: '500',
-  color: colors.text,
-  paddingRight: 16,
-},
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.text,
+    paddingRight: 16,
+  },
 
   inputWrap: {
     width: 105,
@@ -430,4 +428,4 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 20,
   },
-})
+});

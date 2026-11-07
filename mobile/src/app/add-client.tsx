@@ -165,11 +165,6 @@ export default function AddClient() {
         notes: notes.trim() || undefined,
       });
 
-      console.log(
-        'Client created successfully:',
-        response.client
-      );
-
       // Navigate directly to the newly created client.
       router.replace(
         `/client/${response.client.id}` as any

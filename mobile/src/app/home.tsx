@@ -7,52 +7,54 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
+} from 'react-native'
 
-import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { router } from 'expo-router'
+import { useCallback, useEffect, useState } from 'react'
 
-import {
-  BottomNav,
-  IconCircle,
-  Screen,
-  SectionTitle,
-} from '../components';
+import { BottomNav, IconCircle, Screen, SectionTitle } from '../components'
 
-import { colors } from '../theme';
+import { colors } from '../theme'
 
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/AuthContext'
 
-import {
-  DashboardResponse,
-  getDashboard,
-} from '../api/dashboard';
+import { DashboardResponse, getDashboard } from '../api/dashboard'
 
 const quick = [
   ['♙', 'Clients', 'Manage all clients', '/clients'],
   ['⌁', 'New Measurement', 'Add or update', '/new-measurement'],
-  ['✦', 'AI Style Studio', 'Get smart style suggestions', '/ai'],
+  [
+    '✦',
+    'AI Style Studio',
+    'Get personalised style recommendation for any client',
+    '/ai',
+  ],
   ['▣', 'Saved Designs', 'Your custom designs', '/styles'],
-  ['◈', 'Measurement Guide', 'How to take accurate measurements', '/new-measurement'],
+  [
+    '◈',
+    'Measurement Guide',
+    'How to take accurate measurements',
+    '/new-measurement',
+  ],
   ['◫', 'Reports & History', 'View client history and feedback', '/clients'],
-] as const;
+] as const
 
 function formatDate(dateString?: string) {
   if (!dateString) {
-    return 'No measurements yet';
+    return 'No measurements yet'
   }
 
-  const date = new Date(dateString);
+  const date = new Date(dateString)
 
   if (Number.isNaN(date.getTime())) {
-    return 'No measurements yet';
+    return 'No measurements yet'
   }
 
   return date.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
-  });
+  })
 }
 
 function getInitials(name: string) {
@@ -61,84 +63,64 @@ function getInitials(name: string) {
     .split(' ')
     .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join('');
+    .map(part => part.charAt(0).toUpperCase())
+    .join('')
 }
 
 export default function Home() {
-  const {
-  user,
-  token,
-  loading: authLoading,
-} = useAuth();
+  const { user, token, loading: authLoading } = useAuth()
 
-  const [dashboard, setDashboard] =
-    useState<DashboardResponse | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null)
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true)
 
-  const [refreshing, setRefreshing] =
-    useState(false);
+  const [refreshing, setRefreshing] = useState(false)
 
-  const [error, setError] = useState<string | null>(
-    null
-  );
+  const [error, setError] = useState<string | null>(null)
 
-  const loadDashboard = useCallback(
-    async (isRefresh = false) => {
-      try {
-        if (isRefresh) {
-          setRefreshing(true);
-        } else {
-          setLoading(true);
-        }
-
-        setError(null);
-
-        const data = await getDashboard(token);
-
-        setDashboard(data);
-      } catch (err) {
-        console.error(
-          'Failed to load dashboard:',
-          err
-        );
-
-        setError(
-          err instanceof Error
-            ? err.message
-            : 'Unable to load dashboard.'
-        );
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
+  const loadDashboard = useCallback(async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true)
+      } else {
+        setLoading(true)
       }
-    },
-    []
-  );
+
+      setError(null)
+
+      const data = await getDashboard(token)
+
+      setDashboard(data)
+    } catch (err) {
+      console.error('Failed to load dashboard:', err)
+
+      setError(err instanceof Error ? err.message : 'Unable to load dashboard.')
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (token) {
-      loadDashboard();
+      loadDashboard()
     }
-  }, [token, loadDashboard]);
+  }, [token, loadDashboard])
 
   /*
    * Use the name returned by the authenticated
    * user. If the name isn't available yet, we
    * temporarily use "Tailor".
    */
-  const firstName =
-    user?.name?.trim()?.split(' ')[0] || 'Tailor';
+  const firstName = user?.name?.trim()?.split(' ')[0] || 'Tailor'
 
-  const recentClients =
-    dashboard?.recentClients ?? [];
+  const recentClients = dashboard?.recentClients ?? []
 
   const stats = dashboard?.stats ?? {
     clients: 0,
     savedStyles: 0,
     recentMeasurements: 0,
-  };
+  }
 
   return (
     <Screen>
@@ -151,60 +133,68 @@ export default function Home() {
               refreshing={refreshing}
               onRefresh={() => loadDashboard(true)}
             />
-          }
-        >
+          }>
           {/* Header */}
           <View style={styles.top}>
             <View style={styles.greetingContainer}>
-              <Text style={styles.greeting}>
-                Hello, {firstName} 👋
-              </Text>
+              <Text style={styles.greeting}>Hello, {firstName} 👋</Text>
 
-              <Text style={styles.sub}>
-                Let’s create the perfect fit
-              </Text>
+              <Text style={styles.sub}>Let’s create the perfect fit</Text>
             </View>
 
-            <Pressable
+            {/* <Pressable
               style={styles.bellButton}
               accessibilityLabel="Notifications"
             >
               <Text style={styles.bell}>♧</Text>
-            </Pressable>
+            </Pressable> */}
           </View>
+
+          {/* AI Banner */}
+          <Pressable
+            onPress={() => router.push('/ai' as any)}
+            style={styles.aiBanner}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Image
+                source={require('../../assets/images/sparkle.png')}
+                style={styles.sparkle}
+                resizeMode="cover"
+              />
+            <View>
+              <Text style={styles.aiTitle}>AI Style Studio</Text>
+
+              <Text style={styles.aiSub}>
+                Get personalized style{'\n'}
+                recommendations for any client
+              </Text>
+              </View>
+              </View>
+
+            <View style={styles.arrow}>
+              <Text style={styles.arrowText}>›</Text>
+            </View>
+          </Pressable>
 
           {/* Dashboard loading */}
           {loading && !dashboard ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator
-                size="large"
-                color={colors.purple}
-              />
+              <ActivityIndicator size="large" color={colors.purple} />
 
-              <Text style={styles.loadingText}>
-                Loading your dashboard...
-              </Text>
+              <Text style={styles.loadingText}>Loading your dashboard...</Text>
             </View>
           ) : null}
 
           {/* Error */}
           {error && !loading ? (
             <View style={styles.errorCard}>
-              <Text style={styles.errorTitle}>
-                Unable to load dashboard
-              </Text>
+              <Text style={styles.errorTitle}>Unable to load dashboard</Text>
 
-              <Text style={styles.errorText}>
-                {error}
-              </Text>
+              <Text style={styles.errorText}>{error}</Text>
 
               <Pressable
                 onPress={() => loadDashboard()}
-                style={styles.retryButton}
-              >
-                <Text style={styles.retryText}>
-                  Try again
-                </Text>
+                style={styles.retryButton}>
+                <Text style={styles.retryText}>Try again</Text>
               </Pressable>
             </View>
           ) : null}
@@ -213,144 +203,58 @@ export default function Home() {
           {!loading || dashboard ? (
             <>
               {/* Statistics */}
-              <View style={styles.statsRow}>
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>
-                    {stats.clients}
-                  </Text>
-
-                  <Text style={styles.statLabel}>
-                    Clients
-                  </Text>
-                </View>
-
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>
-                    {stats.recentMeasurements}
-                  </Text>
-
-                  <Text style={styles.statLabel}>
-                    Measurements
-                  </Text>
-                </View>
-
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>
-                    {stats.savedStyles}
-                  </Text>
-
-                  <Text style={styles.statLabel}>
-                    Saved Styles
-                  </Text>
-                </View>
-              </View>
-
-              {/* AI Banner */}
-              <Pressable
-                onPress={() =>
-                  router.push('/ai' as any)
-                }
-                style={styles.aiBanner}
-              >
-                <View>
-                  <Text style={styles.aiTitle}>
-                    ✦ AI Style Studio
-                  </Text>
-
-                  <Text style={styles.aiSub}>
-                    Get personalized style{'\n'}
-                    recommendations for any client
-                  </Text>
-                </View>
-
-                <View style={styles.arrow}>
-                  <Text style={styles.arrowText}>
-                    ›
-                  </Text>
-                </View>
-              </Pressable>
 
               {/* Quick actions */}
               <View style={styles.grid}>
-                {quick.map(
-                  ([
-                    icon,
-                    title,
-                    desc,
-                    route,
-                  ]) => (
-                    <Pressable
-                      key={title}
-                      onPress={() =>
-                        router.push(route as any)
-                      }
-                      style={styles.quick}
-                    >
+                {quick.map(([icon, title, desc, route]) => (
+                  <Pressable
+                    key={title}
+                    onPress={() => router.push(route as any)}
+                    style={styles.quick}>
+                    <View style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center' }}>
                       <IconCircle text={icon} />
 
-                      <Text style={styles.quickTitle}>
-                        {title}
-                      </Text>
+                    <Text style={styles.quickTitle}>{title} {'\n'} 
+                    <Text style={styles.quickDesc}>{desc}</Text></Text>
 
-                      <Text style={styles.quickDesc}>
-                        {desc}
-                      </Text>
-                    </Pressable>
-                  )
-                )}
+                    </View>
+                    
+                  </Pressable>
+                ))}
               </View>
 
               {/* Recent clients */}
-              <SectionTitle
-                title="Recent Clients"
-                action="View all"
-              />
+              <SectionTitle title="Recent Clients" action="View all" />
 
               {recentClients.length === 0 ? (
                 <View style={styles.emptyCard}>
-                  <Text style={styles.emptyIcon}>
-                    ♙
-                  </Text>
+                  <Text style={styles.emptyIcon}>♙</Text>
 
-                  <Text style={styles.emptyTitle}>
-                    No clients yet
-                  </Text>
+                  <Text style={styles.emptyTitle}>No clients yet</Text>
 
                   <Text style={styles.emptyText}>
-                    Add your first client to start
-                    managing measurements and fit
+                    Add your first client to start managing measurements and fit
                     profiles.
                   </Text>
 
                   <Pressable
-                    onPress={() =>
-                      router.push(
-                        '/add-client' as any
-                      )
-                    }
-                    style={styles.emptyButton}
-                  >
-                    <Text style={styles.emptyButtonText}>
-                      Add a client
-                    </Text>
+                    onPress={() => router.push('/add-client' as any)}
+                    style={styles.emptyButton}>
+                    <Text style={styles.emptyButtonText}>Add a client</Text>
                   </Pressable>
                 </View>
               ) : (
                 <View style={styles.clientList}>
-                  {recentClients.map((client) => {
-                    const latestMeasurement =
-                      client.measurements?.[0];
+                  {recentClients.map(client => {
+                    const latestMeasurement = client.measurements?.[0]
 
                     return (
                       <Pressable
                         key={client.id}
                         onPress={() =>
-                          router.push(
-                            `/client/${client.id}` as any
-                          )
+                          router.push(`/client/${client.id}` as any)
                         }
-                        style={styles.clientRow}
-                      >
+                        style={styles.clientRow}>
                         {client.avatarUrl ? (
                           <Image
                             source={{
@@ -359,56 +263,20 @@ export default function Home() {
                             style={styles.avatar}
                           />
                         ) : (
-                          <View
-                            style={
-                              styles.initialAvatar
-                            }
-                          >
-                            <Text
-                              style={
-                                styles.initialAvatarText
-                              }
-                            >
-                              {getInitials(
-                                client.name
-                              )}
+                          <View style={styles.initialAvatar}>
+                            <Text style={styles.initialAvatarText}>
+                              {getInitials(client.name)}
                             </Text>
                           </View>
                         )}
 
-                        <View
-                          style={
-                            styles.clientInfo
-                          }
-                        >
-                          <Text
-                            style={
-                              styles.clientName
-                            }
-                          >
-                            {client.name}
-                          </Text>
-
-                          <Text
-                            style={
-                              styles.clientDate
-                            }
-                          >
-                            {latestMeasurement
-                              ? `Last measured: ${formatDate(
-                                  latestMeasurement.createdAt
-                                )}`
-                              : 'No measurements yet'}
-                          </Text>
+                        <View style={styles.clientInfo}>
+                          <Text style={styles.clientName}>{client.name?.charAt(0)?.toUpperCase()}{client.name?.slice(1)}</Text>
                         </View>
 
-                        <Text
-                          style={styles.chev}
-                        >
-                          ›
-                        </Text>
+                        <Text style={styles.chev}>›</Text>
                       </Pressable>
-                    );
+                    )
                   })}
                 </View>
               )}
@@ -419,7 +287,7 @@ export default function Home() {
         <BottomNav active="Home" />
       </View>
     </Screen>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -505,7 +373,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 14,
   },
-
+sparkle: {
+    width: 60,
+    height: 60,
+  },
   aiTitle: {
     color: '#fff',
     fontSize: 13,
@@ -543,6 +414,7 @@ const styles = StyleSheet.create({
   },
 
   quick: {
+    display: 'flex',
     width: '48.8%',
     backgroundColor: '#fff',
     borderWidth: 1,
@@ -609,8 +481,7 @@ const styles = StyleSheet.create({
 
   clientName: {
     fontSize: 11,
-    fontWeight: '800',
-    color: colors.text,
+    color: colors.muted,
   },
 
   clientDate: {
@@ -717,4 +588,4 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
   },
-});
+})

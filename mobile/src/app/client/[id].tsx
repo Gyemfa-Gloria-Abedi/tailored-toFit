@@ -14,16 +14,22 @@ import { useEffect, useState } from 'react'
 import { Screen } from '../../components'
 import { colors } from '../../theme'
 
-import { Client, deleteClient, getClient } from '../../api/clients'
+import { Client, deleteClient, getClient, Measurement } from '../../api/clients'
 
 export default function ClientDetails() {
   const { id } = useLocalSearchParams<{
     id: string
   }>()
 
+  type Tab = 'Overview' | 'Measurements' | 'History' | 'Styles'
+
+  const tabs: Tab[] = ['Overview', 'Measurements', 'History', 'Styles']
+
   const [client, setClient] = useState<Client | null>(null)
 
   const [loading, setLoading] = useState(true)
+
+  const [activeTab, setActiveTab] = useState<Tab>('Overview')
 
   useEffect(() => {
     if (!id) return
@@ -103,6 +109,8 @@ export default function ClientDetails() {
 
   const latestMeasurement = client.measurements?.[0]
 
+  const {id: measurementId, clientId, createdAt, ...clientMeasurement } = latestMeasurement || {};
+  
   const latestProfile = client.fitProfiles?.[0]
 
   return (
@@ -114,108 +122,88 @@ export default function ClientDetails() {
           <Text style={styles.backText}>‹ Back</Text>
         </Pressable>
 
-        <View style={styles.profileHeader}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {client.name
-                .split(' ')
-                .slice(0, 2)
-                .map(x => x[0])
-                .join('')
-                .toUpperCase()}
-            </Text>
-          </View>
-
-          <View style={styles.headerInfo}>
-            <Text style={styles.name}>{client.name}</Text>
-
-            <Text style={styles.meta}>
-              {client.gender ? client.gender.toLowerCase() : 'Client'}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.actions}>
-          <Pressable
-            style={styles.primaryAction}
-            onPress={() =>
-              router.push(`/new-measurement?clientId=${client.id}` as any)
-            }>
-            <Text style={styles.primaryActionText}>Add Measurement</Text>
-          </Pressable>
-
-          {latestMeasurement && (
-            <Pressable
-              style={styles.secondaryAction}
-              onPress={() =>
-                router.push(
-                  `/edit-measurement?id=${latestMeasurement.id}&clientId=${client.id}` as any,
-                )
-              }>
-              <Text style={styles.secondaryActionText}>Update Measurement</Text>
-            </Pressable>
-          )}
-          <Pressable
-            style={styles.aiDesignButton}
-            onPress={() =>
-              router.push(`/ai-design?clientId=${client.id}` as any)
-            }>
-            <Text style={styles.aiDesignButtonText}>✦ Create AI Design</Text>
-          </Pressable>
-        </View>
-
-        <Section title="Contact">
-          <InfoRow label="Phone" value={client.phone || 'Not provided'} />
-
-          <InfoRow label="Email" value={client.email || 'Not provided'} />
-
-          <InfoRow
-            label="Date of birth"
-            value={
-              client.dateOfBirth
-                ? new Date(client.dateOfBirth).toLocaleDateString('en-GB')
-                : 'Not provided'
-            }
-          />
-        </Section>
-
-        <Section title="Latest Measurement">
-          {latestMeasurement ? (
-            <View>
-              <InfoRow label="Unit" value={latestMeasurement.unit} />
-
-              <InfoRow
-                label="Chest"
-                value={
-                  latestMeasurement.chest
-                    ? `${latestMeasurement.chest} ${latestMeasurement.unit === 'INCH' ? 'in' : 'cm'}`
-                    : 'Not recorded'
-                }
-              />
-
-              <InfoRow
-                label="Waist"
-                value={
-                  latestMeasurement.waist
-                    ? `${latestMeasurement.waist} ${latestMeasurement.unit === 'INCH' ? 'in' : 'cm'}`
-                    : 'Not recorded'
-                }
-              />
-
-              <InfoRow
-                label="Hip"
-                value={
-                  latestMeasurement.hip
-                    ? `${latestMeasurement.hip} ${latestMeasurement.unit === 'INCH' ? 'in' : 'cm'}`
-                    : 'Not recorded'
-                }
-              />
+        <View style={styles.profileHeaderContainer}>
+          <View style={styles.profileHeader}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {client.name
+                  .split(' ')
+                  .slice(0, 2)
+                  .map(x => x[0])
+                  .join('')
+                  .toUpperCase()}
+              </Text>
             </View>
-          ) : (
-            <EmptySection text="No measurements have been recorded yet." />
-          )}
-        </Section>
 
+            <View style={styles.headerInfo}>
+              <Text style={styles.name}>
+                {client.name.charAt(0).toUpperCase() + client.name.slice(1)}
+              </Text>
+              <View style={styles.clientInfo}>
+                <Text style={styles.meta}>
+                  {client.phone ? client.phone.toLowerCase() : ''}
+                </Text>
+                <Text style={styles.meta}>{client.email || ''}</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.actions}>
+            {latestMeasurement ? (
+              <Pressable
+                style={styles.secondaryAction}
+                onPress={() =>
+                  router.push(
+                    `/edit-measurement?id=${latestMeasurement.id}&clientId=${client.id}` as any,
+                  )
+                }>
+                <Text style={styles.secondaryActionText}>
+                  Update Measurement
+                </Text>
+              </Pressable>
+            ) : (
+              <Pressable
+                style={styles.secondaryAction}
+                onPress={() =>
+                  router.push(`/new-measurement?clientId=${client.id}` as any)
+                }>
+                <Text style={styles.secondaryActionText}>Add Measurement</Text>
+              </Pressable>
+            )}
+
+            <Pressable
+              style={styles.aiDesignButton}
+              onPress={() =>
+                router.push(`/ai-design?clientId=${client.id}` as any)
+              }>
+              <Text style={styles.aiDesignButtonText}>✦ Generate Style</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Tabs */}
+        <View style={styles.tabs}>
+          {tabs.map(tab => (
+            <Pressable
+              key={tab}
+              onPress={() => setActiveTab(tab)}
+              style={[styles.tab, activeTab === tab && styles.activeTab]}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab && styles.activeTabText,
+                ]}>
+                {tab}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {(activeTab === 'Measurements' || activeTab === 'Overview') && (
+          <SectionCard title= {activeTab === 'Overview' ? 'Measurements' : ''} measurements={clientMeasurement} />
+        )}
+
+        {(activeTab === 'History' || activeTab === 'Overview') && (
         <Section title="Fit Profile">
           {latestProfile ? (
             <>
@@ -233,6 +221,8 @@ export default function ClientDetails() {
             <EmptySection text="A fit profile will appear after measurements are added." />
           )}
         </Section>
+          
+        )}
 
         <Pressable onPress={confirmDelete} style={styles.deleteButton}>
           <Text style={styles.deleteText}>Delete Client</Text>
@@ -254,6 +244,27 @@ function Section({
       <Text style={styles.sectionTitle}>{title}</Text>
 
       <View style={styles.card}>{children}</View>
+    </View>
+  )
+}
+
+function SectionCard({
+  title,
+  measurements,
+}: {
+  title: string
+    measurements: Measurement | {}
+}) {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {measurements &&
+        Object.entries(measurements).map(([label, value]) => (
+          <View key={label} style={styles.newCard}>
+            <Text>{label.charAt(0).toUpperCase() + label.slice(1)}</Text>
+            <Text>{value}</Text>
+          </View>
+        ))}
     </View>
   )
 }
@@ -300,6 +311,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
+  profileHeaderContainer: {
+    marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -323,6 +340,8 @@ const styles = StyleSheet.create({
   },
 
   headerInfo: {
+    display: 'flex',
+    flexDirection: 'column',
     flex: 1,
   },
 
@@ -352,6 +371,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  clientInfo: {
+    marginTop: 4,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
 
   primaryActionText: {
     color: '#fff',
@@ -364,7 +389,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 9,
-    minHeight: 43,
+    minHeight: 33,
+    height: 'fit-content',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#fff',
@@ -383,15 +409,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.text,
     fontSize: 13,
-    fontWeight: '800',
-    marginBottom: 7,
+    fontWeight: '500',
+    padding: 13,
   },
 
   card: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: 11,
     padding: 13,
   },
 
@@ -474,16 +497,62 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   aiDesignButton: {
-    marginTop: 10,
-    minHeight: 46,
     borderRadius: 9,
     backgroundColor: colors.deep,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 10,
+    height: 'fit-content',
+    minHeight: 33,
   },
   aiDesignButtonText: {
     color: '#fff',
     fontSize: 12,
     fontWeight: '800',
+  },
+  tabs: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+    marginBottom: 17,
+  },
+
+  tab: {
+    paddingHorizontal: 5,
+    paddingVertical: 11,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+
+  activeTab: {
+    borderBottomColor: colors.purple,
+  },
+
+  tabText: {
+    color: colors.muted,
+    fontSize: 10,
+    fontWeight: '500',
+  },
+
+  activeTabText: {
+    color: colors.purple,
+    fontWeight: '800',
+  },
+
+  sectionHeading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  newCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 7,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e7e6eb',
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: '500',
   },
 })

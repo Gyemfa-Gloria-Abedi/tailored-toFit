@@ -189,7 +189,7 @@ export default function Clients() {
 
           <View style={styles.details}>
             <Text style={styles.name}>
-              {item.name}
+              {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
             </Text>
 
             {item.phone ? (
@@ -425,6 +425,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     marginBottom: 9,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
   },
 
   clientInfo: {
