@@ -111,7 +111,8 @@ export default function ClientDetails() {
 
   const {id: measurementId, clientId, createdAt, ...clientMeasurement } = latestMeasurement || {};
   
-  const latestProfile = client.fitProfiles?.[0]
+  const fitProfile = client.fitProfile ?? null
+  const styleRecommendations = client.styleRecommendations ?? []
 
   return (
     <Screen>
@@ -204,24 +205,54 @@ export default function ClientDetails() {
         )}
 
         {(activeTab === 'History' || activeTab === 'Overview') && (
-        <Section title="Fit Profile">
-          {latestProfile ? (
-            <>
-              <View style={styles.fitScore}>
-                <Text style={styles.fitScoreNumber}>{latestProfile.score}</Text>
+          <Section title="Fit Profile">
+            {fitProfile ? (
+              <>
+                <View style={styles.fitScore}>
+                  <Text style={styles.fitScoreNumber}>{fitProfile.score}</Text>
 
-                <Text style={styles.fitScoreLabel}>FIT SCORE</Text>
-              </View>
+                  <Text style={styles.fitScoreLabel}>FIT SCORE</Text>
+                </View>
 
-              <Text style={styles.bodyShape}>{latestProfile.bodyShape}</Text>
+                <Text style={styles.bodyShape}>{fitProfile.bodyShape}</Text>
 
-              <Text style={styles.summary}>{latestProfile.summary}</Text>
-            </>
-          ) : (
-            <EmptySection text="A fit profile will appear after measurements are added." />
-          )}
-        </Section>
-          
+                <Text style={styles.summary}>{fitProfile.summary}</Text>
+
+                <Pressable
+                  style={styles.viewFullProfile}
+                  onPress={() =>
+                    router.push(`/fit-profile/${client.id}` as any)
+                  }>
+                  <Text style={styles.secondaryActionText}>
+                    View full fit profile ›
+                  </Text>
+                </Pressable>
+              </>
+            ) : (
+              <EmptySection text="A fit profile will appear after measurements are added." />
+            )}
+          </Section>
+        )}
+
+        {(activeTab === 'Styles' || activeTab === 'Overview') && (
+          <Section title="Recommended Styles">
+            {styleRecommendations.length > 0 ? (
+              styleRecommendations.map(rec => (
+                <View key={rec.name} style={styles.styleRow}>
+                  <View style={styles.styleRowHeader}>
+                    <Text style={styles.styleName}>{rec.name}</Text>
+                    <Text style={styles.styleScore}>{rec.score}%</Text>
+                  </View>
+                  <Text style={styles.styleCategory}>
+                    {rec.category} · {rec.garmentType}
+                  </Text>
+                  <Text style={styles.summary}>{rec.description}</Text>
+                </View>
+              ))
+            ) : (
+              <EmptySection text="Style recommendations will appear after measurements are added." />
+            )}
+          </Section>
         )}
 
         <Pressable onPress={confirmDelete} style={styles.deleteButton}>
@@ -297,7 +328,7 @@ const styles = StyleSheet.create({
 
   loadingText: {
     color: colors.muted,
-    fontSize: 11,
+    fontSize: 13,
     marginTop: 10,
   },
 
@@ -307,20 +338,26 @@ const styles = StyleSheet.create({
 
   backText: {
     color: colors.purple,
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
   },
 
+  // Wraps the action buttons below the name on narrow screens.
   profileHeaderContainer: {
     marginBottom: 20,
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
   },
 
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 18,
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 220,
   },
 
   avatar: {
@@ -353,14 +390,14 @@ const styles = StyleSheet.create({
 
   meta: {
     color: colors.muted,
-    fontSize: 10,
+    fontSize: 12,
     marginTop: 4,
   },
 
   actions: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 20,
   },
 
   primaryAction: {
@@ -380,7 +417,7 @@ const styles = StyleSheet.create({
 
   primaryActionText: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '800',
   },
 
@@ -389,8 +426,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 9,
-    minHeight: 33,
-    height: 'fit-content',
+    minHeight: 40,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#fff',
@@ -398,7 +434,7 @@ const styles = StyleSheet.create({
 
   secondaryActionText: {
     color: colors.purple,
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '800',
   },
 
@@ -408,7 +444,7 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
     color: colors.text,
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '500',
     padding: 13,
   },
@@ -426,12 +462,12 @@ const styles = StyleSheet.create({
 
   infoLabel: {
     color: colors.muted,
-    fontSize: 10,
+    fontSize: 12,
   },
 
   infoValue: {
     color: colors.text,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
     maxWidth: '65%',
     textAlign: 'right',
@@ -456,29 +492,64 @@ const styles = StyleSheet.create({
 
   fitScoreLabel: {
     color: colors.muted,
-    fontSize: 6,
+    fontSize: 11,
     fontWeight: '700',
   },
 
   bodyShape: {
     color: colors.text,
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '800',
   },
 
   summary: {
     color: colors.muted,
-    fontSize: 10,
-    lineHeight: 15,
+    fontSize: 12,
+    lineHeight: 17,
     textAlign: 'center',
     marginTop: 5,
   },
 
+  viewFullProfile: {
+    alignSelf: 'center',
+    marginTop: 12,
+  },
+
+  styleRow: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
+
+  styleRowHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  styleName: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '800',
+  },
+
+  styleScore: {
+    color: colors.purple,
+    fontSize: 13,
+    fontWeight: '800',
+  },
+
+  styleCategory: {
+    color: colors.muted,
+    fontSize: 11,
+    marginTop: 2,
+  },
+
   emptyText: {
     color: colors.muted,
-    fontSize: 10,
-    lineHeight: 15,
+    fontSize: 12,
+    lineHeight: 17,
   },
 
   deleteButton: {
@@ -493,7 +564,7 @@ const styles = StyleSheet.create({
 
   deleteText: {
     color: '#A42828',
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
   },
   aiDesignButton: {
@@ -501,17 +572,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.deep,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10,
-    height: 'fit-content',
-    minHeight: 33,
+    paddingHorizontal: 14,
+    minHeight: 40,
   },
   aiDesignButtonText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '800',
   },
   tabs: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
@@ -531,7 +602,7 @@ const styles = StyleSheet.create({
 
   tabText: {
     color: colors.muted,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '500',
   },
 
@@ -552,7 +623,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e7e6eb',
     color: colors.muted,
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '500',
   },
 })

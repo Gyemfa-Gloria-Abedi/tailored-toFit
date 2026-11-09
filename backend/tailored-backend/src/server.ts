@@ -4,7 +4,7 @@ import cors from 'cors';
 import { prisma } from './db.js';
 import { hashPassword, requireAuth, signToken, verifyPassword } from './auth.js';
 import { clientSchema, loginSchema, measurementSchema, registerSchema, savedStyleSchema } from './validation.js';
-import { generateFitProfile, recommendationSeed } from './fit.js';
+import { generateFitProfile, recommendStyles, registerFitProfileRoutes, saveFitProfile } from './fit.js';
 import type { AuthRequest } from './types.js';
 import { registerAIDesignRoutes } from './ai-designs-route.js';
 
@@ -100,9 +100,13 @@ app.post('/api/clients', requireAuth, async (req: AuthRequest, res, next) => {
 
 app.get('/api/clients/:id', requireAuth, async (req: AuthRequest, res, next) => {
   try {
-    const client = await prisma.client.findFirst({ where: { id: req.params.id, ownerId: req.userId }, include: { measurements: { orderBy: { createdAt: 'desc' } }, fitProfiles: { orderBy: { generatedAt: 'desc' }, take: 1 }, recommendations: { orderBy: { score: 'desc' } } } });
+    const client = await prisma.client.findFirst({ where: { id: String(req.params.id), ownerId: req.userId }, include: { measurements: { orderBy: { createdAt: 'desc' } }, fitProfiles: { orderBy: { generatedAt: 'desc' }, take: 1 }, recommendations: { orderBy: { score: 'desc' } } } });
     if (!client) return res.status(404).json({ message: 'Client not found' });
-    res.json({ client });
+    // Always attach a fit profile computed from the latest measurement so it is part of the client's profile.
+    const latest = client.measurements[0];
+    const fitProfile = latest ? generateFitProfile(latest) : null;
+    const styleRecommendations = fitProfile ? recommendStyles(fitProfile) : [];
+    res.json({ client: { ...client, fitProfile, styleRecommendations } });
   } catch (e) { next(e); }
 });
 
@@ -119,7 +123,7 @@ app.post(
   requireAuth,
   async (req: AuthRequest, res, next) => {
     try {
-      const clientId = req.params.id;
+      const clientId = String(req.params.id);
 
       // Make sure the client belongs to the
       // currently logged-in tailor.
@@ -215,8 +219,12 @@ app.post(
           },
         });
 
+      // Keep the stored fit profile in sync with the new measurement.
+      const saved = await saveFitProfile(clientId);
+
       return res.status(201).json({
         measurement,
+        fitProfile: saved?.fitProfile ?? null,
       });
     } catch (error) {
       next(error);
@@ -276,8 +284,12 @@ app.patch(
           },
         });
 
+      // Keep the stored fit profile in sync with the edited measurement.
+      const saved = await saveFitProfile(measurement.clientId);
+
       return res.json({
         measurement,
+        fitProfile: saved?.fitProfile ?? null,
       });
     } catch (error) {
       next(error);
@@ -287,19 +299,38 @@ app.patch(
 
 registerAIDesignRoutes(app);
 
-app.post('/api/clients/:id/fit-profile/generate', requireAuth, async (req: AuthRequest, res, next) => {
-  try {
-    const latest = await prisma.measurement.findFirst({ where: { client: { id: req.params.id, ownerId: req.userId } }, orderBy: { createdAt: 'desc' } });
-    if (!latest) return res.status(400).json({ message: 'Add measurements before generating a fit profile' });
-    const profile = generateFitProfile(latest);
-    const fitProfile = await prisma.fitProfile.create({ data: { clientId: latest.clientId, score: profile.score, bodyShape: profile.bodyShape, summary: profile.summary, strengths: profile.strengths, recommendations: profile.recommendations } });
-    res.status(201).json({ fitProfile });
-  } catch (e) { next(e); }
-});
+registerFitProfileRoutes(app);
 
 app.get('/api/clients/:id/recommendations', requireAuth, async (req: AuthRequest, res, next) => {
   try { const recommendations = await prisma.styleRecommendation.findMany({ where: { client: { id: req.params.id, ownerId: req.userId } }, orderBy: { score: 'desc' } }); res.json({ recommendations }); } catch (e) { next(e); }
 });
+
+app.get(
+  '/api/measurements/:id',
+  requireAuth,
+  async (req: AuthRequest, res, next) => {
+    try {
+      const measurement = await prisma.measurement.findFirst({
+        where: {
+          id: req.params.id,
+          client: {
+            ownerId: req.userId,
+          },
+        },
+      });
+
+      if (!measurement) {
+        return res.status(404).json({
+          message: 'Measurement not found.',
+        });
+      }
+
+      return res.json({ measurement });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 app.get('/api/styles', requireAuth, async (req: AuthRequest, res, next) => {
   try { const styles = await prisma.savedStyle.findMany({ where: { userId: req.userId }, orderBy: { createdAt: 'desc' } }); res.json({ styles }); } catch (e) { next(e); }
@@ -336,30 +367,3 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 const server = app.listen(port, () => console.log(`Tailored toFit API running on http://localhost:${port}`));
 process.on('SIGINT', async () => { await prisma.$disconnect(); server.close(); });
 process.on('SIGTERM', async () => { await prisma.$disconnect(); server.close(); });
-
-app.get(
-  '/api/measurements/:id',
-  requireAuth,
-  async (req: AuthRequest, res, next) => {
-    try {
-      const measurement = await prisma.measurement.findFirst({
-        where: {
-          id: req.params.id,
-          client: {
-            ownerId: req.userId,
-          },
-        },
-      });
-
-      if (!measurement) {
-        return res.status(404).json({
-          message: 'Measurement not found.',
-        });
-      }
-
-      return res.json({ measurement });
-    } catch (error) {
-      next(error);
-    }
-  }
-);

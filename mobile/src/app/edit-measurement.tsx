@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -232,6 +234,9 @@ export default function EditMeasurement() {
 
   return (
     <Screen>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled">
@@ -304,6 +309,7 @@ export default function EditMeasurement() {
           />
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </Screen>
   )
 }
@@ -322,7 +328,7 @@ const styles = StyleSheet.create({
   },
 
   loadingText: {
-    fontSize: 12,
+    fontSize: 14,
     color: colors.muted,
   },
 
@@ -333,14 +339,14 @@ const styles = StyleSheet.create({
   },
 
   sub: {
-    fontSize: 10,
+    fontSize: 12,
     color: colors.muted,
     marginTop: 4,
     marginBottom: 18,
   },
 
   sectionLabel: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     color: colors.text,
     marginBottom: 8,
@@ -364,7 +370,7 @@ const styles = StyleSheet.create({
   },
 
   unitText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '600',
     color: colors.text,
   },
@@ -384,7 +390,7 @@ const styles = StyleSheet.create({
 
   label: {
     flex: 1,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '500',
     color: colors.text,
     paddingRight: 16,
@@ -419,7 +425,7 @@ const styles = StyleSheet.create({
   unit: {
     width: 22,
     marginLeft: 7,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
     color: colors.muted,
     textAlign: 'left',

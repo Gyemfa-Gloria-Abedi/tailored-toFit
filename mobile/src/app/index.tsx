@@ -1,16 +1,18 @@
 import { router } from 'expo-router';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { OutlineButton, PrimaryButton, Screen } from '../components';
 import { colors } from '../theme';
 
 export default function Index() {
   return (
     <Screen>
-      <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}>
         {/* Logo */}
         <Image
           source={require('../../assets/images/logo.png')}
-          style={styles.model}
+          style={styles.logo}
           resizeMode="cover"
         />
         <Text style={styles.logoText}>
@@ -51,20 +53,24 @@ export default function Index() {
         <Text style={styles.footer}>
           Made for tailors. Designed for perfection.
         </Text>
-      </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 28,
     paddingHorizontal: 24,
-    overflowY: 'auto',
+  },
 
+  logo: {
+    width: '40%',
+    maxWidth: 160,
+    aspectRatio: 1,
   },
 
   brandIcon: {
@@ -74,7 +80,7 @@ const styles = StyleSheet.create({
 
   tapeText: {
     color: colors.gold,
-    fontSize: 15,
+    fontSize: 17,
   },
 
   logoText: {
@@ -91,34 +97,37 @@ const styles = StyleSheet.create({
 
   tag: {
     color: '#00001A',
-    fontSize: 10,
+    fontSize: 12,
     letterSpacing: 1.6,
     marginTop: -4,
   },
 
   model: {
-    width: 300,
-    height: 300,
+    width: '80%',
+    maxWidth: 320,
+    aspectRatio: 1,
     opacity: 0.72,
     marginVertical: 4,
   },
 
   hero: {
-    color: '#fff',
+    color: colors.text,
     textAlign: 'center',
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 16,
+    lineHeight: 23,
     marginTop: -2,
   },
 
   actions: {
-    width: 300,
+    width: '100%',
+    maxWidth: 360,
     gap: 10,
+    marginTop: 16,
   },
 
   footer: {
     color: '#00001A',
-    fontSize: 10,
+    fontSize: 12,
     opacity: 0.85,
     marginTop: 8,
   },

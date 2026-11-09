@@ -1,5 +1,6 @@
 import {
   KeyboardAvoidingView,
+  ScrollView,
   Platform,
   StyleSheet,
   Text,
@@ -105,10 +106,14 @@ export default function Login() {
   }
 
   return (
-    <Screen style={styles.loginPage}>
+    <Screen>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <Text style={styles.title}>Welcome Back</Text>
 
@@ -173,14 +178,15 @@ export default function Login() {
             </Text>
           </View>
         </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
-  loginPage: {
-    overflowY: 'auto',
+  scroll: {
+    flexGrow: 1,
   },
   container: {
     flex: 1,
@@ -193,7 +199,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingVertical: 28,
-    paddingHorizontal: 24,
   },
 
   title: {
@@ -205,18 +210,20 @@ const styles = StyleSheet.create({
 
   subtitle: {
     color: '#B8B8B8',
-    fontSize: 14,
+    fontSize: 16,
     lineHeight: 21,
     marginBottom: 25,
   },
 
   form: {
+    width: '100%',
+    maxWidth: 420,
     gap: 8,
   },
 
   label: {
     color: '#010131',
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '600',
     marginTop: 8,
   },
@@ -224,12 +231,12 @@ const styles = StyleSheet.create({
   input: {
     height: 52,
     borderWidth: 0,
-    borderColor: 'none',
+    borderColor: 'transparent',
     borderRadius: 10,
     paddingHorizontal: 16,
     color: '#010131',
     backgroundColor: '#dcdada',
-    fontSize: 15,
+    fontSize: 17,
   },
 
   inputError: {
@@ -238,7 +245,7 @@ const styles = StyleSheet.create({
 
   errorText: {
     color: '#FF7B7B',
-    fontSize: 11,
+    fontSize: 13,
     marginTop: -3,
     marginBottom: 2,
   },
@@ -255,8 +262,8 @@ const styles = StyleSheet.create({
 
   formErrorText: {
     color: '#FF9A9A',
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
   },
   buttonContainer: {
     marginTop: 32,
@@ -266,7 +273,7 @@ const styles = StyleSheet.create({
 
   footer: {
     color: '#010131',
-    fontSize: 10,
+    fontSize: 12,
     opacity: 0.7,
     textAlign: 'center',
     marginBottom: 10,

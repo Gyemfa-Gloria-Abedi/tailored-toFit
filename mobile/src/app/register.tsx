@@ -1,5 +1,6 @@
 import {
   KeyboardAvoidingView,
+  ScrollView,
   Platform,
   registerCallableModule,
   StyleSheet,
@@ -106,10 +107,14 @@ export default function Register() {
   }
 
   return (
-    <Screen style={styles.registerPage}>
+    <Screen>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <Text style={styles.title}>Create Account</Text>
 
@@ -198,14 +203,15 @@ export default function Register() {
             Tailored toFit. Made for tailors, Designed for perfection.
           </Text>
         </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
-  registerPage: {
-    overflowY: 'auto',
+  scroll: {
+    flexGrow: 1,
   },
   container: {
     flex: 1,
@@ -219,7 +225,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingVertical: 28,
-    paddingHorizontal: 24,
   },
 
   title: {
@@ -230,12 +235,14 @@ const styles = StyleSheet.create({
   },
 
   form: {
+    width: '100%',
+    maxWidth: 420,
     gap: 8,
   },
 
   label: {
     color: '#010131',
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '600',
     marginTop: 6,
   },
@@ -243,13 +250,13 @@ const styles = StyleSheet.create({
   input: {
     height: 48,
     borderWidth: 0,
-    borderColor: 'none',
+    borderColor: 'transparent',
     borderRadius: 10,
     paddingHorizontal: 16,
     marginBottom: 4,
     color: '#010131',
     backgroundColor: '#dcdada',
-    fontSize: 15,
+    fontSize: 17,
   },
 
   inputError: {
@@ -258,7 +265,7 @@ const styles = StyleSheet.create({
 
   errorText: {
     color: '#FF7B7B',
-    fontSize: 11,
+    fontSize: 13,
     marginTop: -3,
     marginBottom: 2,
   },
@@ -275,8 +282,8 @@ const styles = StyleSheet.create({
 
   formErrorText: {
     color: '#FF9A9A',
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
   },
   buttonContainer: {
     marginTop: 32,
@@ -286,7 +293,7 @@ const styles = StyleSheet.create({
 
   footer: {
     color: '#010131',
-    fontSize: 10,
+    fontSize: 12,
     opacity: 0.7,
     textAlign: 'center',
     marginBottom: 30,

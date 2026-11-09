@@ -245,7 +245,7 @@ export default function Clients() {
     <Screen>
       <View style={styles.container}>
         <View style={styles.header}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.title}>
               Clients
             </Text>
@@ -372,6 +372,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    gap: 12,
     marginBottom: 18,
   },
 
@@ -383,7 +384,7 @@ const styles = StyleSheet.create({
 
   subtitle: {
     color: colors.muted,
-    fontSize: 10,
+    fontSize: 12,
     marginTop: 4,
   },
 
@@ -398,7 +399,7 @@ const styles = StyleSheet.create({
 
   addButtonText: {
     color: '#fff',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '800',
   },
 
@@ -410,7 +411,7 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     paddingHorizontal: 13,
     color: colors.text,
-    fontSize: 11,
+    fontSize: 13,
     marginBottom: 14,
   },
 
@@ -448,7 +449,7 @@ const styles = StyleSheet.create({
 
   avatarText: {
     color: colors.purple,
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '800',
   },
 
@@ -459,13 +460,13 @@ const styles = StyleSheet.create({
 
   name: {
     color: colors.text,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '800',
   },
 
   secondary: {
     color: colors.muted,
-    fontSize: 9,
+    fontSize: 11,
     marginTop: 3,
   },
 
@@ -480,15 +481,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.purple,
     borderRadius: 7,
-    paddingHorizontal: 12,
-    minHeight: 31,
+    paddingHorizontal: 14,
+    minHeight: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   editText: {
     color: colors.purple,
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: '800',
   },
 
@@ -496,15 +497,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D55',
     borderRadius: 7,
-    paddingHorizontal: 12,
-    minHeight: 31,
+    paddingHorizontal: 14,
+    minHeight: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   deleteText: {
     color: '#C33',
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: '800',
   },
 
@@ -516,7 +517,7 @@ const styles = StyleSheet.create({
 
   loadingText: {
     color: colors.muted,
-    fontSize: 10,
+    fontSize: 12,
     marginTop: 8,
   },
 
@@ -532,13 +533,13 @@ const styles = StyleSheet.create({
 
   emptyTitle: {
     color: colors.text,
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '800',
   },
 
   emptyText: {
     color: colors.muted,
-    fontSize: 10,
+    fontSize: 12,
     marginTop: 5,
     textAlign: 'center',
   },
@@ -554,7 +555,7 @@ const styles = StyleSheet.create({
 
   emptyButtonText: {
     color: '#fff',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '800',
   },
 });

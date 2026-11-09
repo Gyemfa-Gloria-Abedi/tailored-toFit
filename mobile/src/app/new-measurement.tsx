@@ -428,15 +428,15 @@ const styles = StyleSheet.create({
   },
 
   sub: {
-    fontSize: 10,
+    fontSize: 12,
     color: colors.muted,
     marginTop: 4,
     marginBottom: 20,
-    lineHeight: 15,
+    lineHeight: 17,
   },
 
   sectionLabel: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     color: colors.text,
     marginBottom: 8,
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
 
   unitButtonText: {
     color: colors.text,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
   },
 
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
 
   label: {
     flex: 1,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '500',
     color: colors.text,
     paddingRight: 16,
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
 
     textAlign: 'right',
 
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '600',
     color: colors.text,
 
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
 
     marginLeft: 7,
 
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
     color: colors.muted,
 
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
 
   errorText: {
     color: '#A42828',
-    fontSize: 9,
+    fontSize: 11,
     marginTop: 4,
     marginLeft: 2,
   },

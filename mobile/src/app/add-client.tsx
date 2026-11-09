@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
 
   subtitle: {
     color: colors.muted,
-    fontSize: 11,
+    fontSize: 13,
     lineHeight: 17,
     marginTop: 5,
     marginBottom: 20,
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
 
   label: {
     color: colors.text,
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     marginBottom: 7,
     marginTop: 12,
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     backgroundColor: '#fff',
     paddingHorizontal: 12,
-    fontSize: 12,
+    fontSize: 14,
     color: colors.text,
   },
 
@@ -560,13 +560,13 @@ const styles = StyleSheet.create({
 
   errorText: {
     color: '#A42828',
-    fontSize: 10,
+    fontSize: 12,
     marginTop: 4,
   },
 
   helper: {
     color: colors.muted,
-    fontSize: 9,
+    fontSize: 11,
     marginTop: 4,
   },
 
@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
 
   genderText: {
     color: colors.text,
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '600',
   },
 

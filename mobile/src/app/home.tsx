@@ -141,31 +141,23 @@ export default function Home() {
 
               <Text style={styles.sub}>Let’s create the perfect fit</Text>
             </View>
-
-            {/* <Pressable
-              style={styles.bellButton}
-              accessibilityLabel="Notifications"
-            >
-              <Text style={styles.bell}>♧</Text>
-            </Pressable> */}
           </View>
 
           {/* AI Banner */}
           <Pressable
             onPress={() => router.push('/ai' as any)}
             style={styles.aiBanner}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
               <Image
                 source={require('../../assets/images/sparkle.png')}
                 style={styles.sparkle}
                 resizeMode="cover"
               />
-            <View>
+            <View style={{ flexShrink: 1 }}>
               <Text style={styles.aiTitle}>AI Style Studio</Text>
 
               <Text style={styles.aiSub}>
-                Get personalized style{'\n'}
-                recommendations for any client
+                Get personalized style recommendations for any client
               </Text>
               </View>
               </View>
@@ -318,7 +310,7 @@ const styles = StyleSheet.create({
   },
 
   sub: {
-    fontSize: 12,
+    fontSize: 14,
     color: colors.muted,
     marginTop: 4,
   },
@@ -359,7 +351,7 @@ const styles = StyleSheet.create({
   },
 
   statLabel: {
-    fontSize: 9,
+    fontSize: 11,
     color: colors.muted,
     marginTop: 3,
   },
@@ -371,6 +363,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
     marginBottom: 14,
   },
 sparkle: {
@@ -379,14 +372,14 @@ sparkle: {
   },
   aiTitle: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '800',
   },
 
   aiSub: {
     color: '#fff',
-    fontSize: 11,
-    lineHeight: 16,
+    fontSize: 13,
+    lineHeight: 19,
     marginTop: 4,
     opacity: 0.9,
   },
@@ -407,15 +400,14 @@ sparkle: {
   },
 
   grid: {
-    flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    justifyContent: 'space-between',
+    rowGap: 10,
     marginBottom: 22,
   },
 
   quick: {
     display: 'flex',
-    width: '48.8%',
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: colors.line,
@@ -425,16 +417,17 @@ sparkle: {
   },
 
   quickTitle: {
-    fontSize: 11,
+    flex: 1,
+    fontSize: 13,
     fontWeight: '800',
     color: colors.text,
     marginTop: 8,
   },
 
   quickDesc: {
-    fontSize: 9,
+    fontSize: 11,
     color: colors.muted,
-    lineHeight: 13,
+    lineHeight: 16,
     marginTop: 3,
   },
 
@@ -471,7 +464,7 @@ sparkle: {
 
   initialAvatarText: {
     color: colors.purple,
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '800',
   },
 
@@ -480,12 +473,12 @@ sparkle: {
   },
 
   clientName: {
-    fontSize: 11,
+    fontSize: 13,
     color: colors.muted,
   },
 
   clientDate: {
-    fontSize: 9,
+    fontSize: 11,
     color: colors.muted,
     marginTop: 3,
   },
@@ -504,7 +497,7 @@ sparkle: {
 
   loadingText: {
     color: colors.muted,
-    fontSize: 12,
+    fontSize: 14,
     marginTop: 10,
   },
 
@@ -519,14 +512,14 @@ sparkle: {
 
   errorTitle: {
     color: '#A42828',
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '800',
   },
 
   errorText: {
     color: '#7A4A4A',
-    fontSize: 11,
-    lineHeight: 16,
+    fontSize: 13,
+    lineHeight: 19,
     marginTop: 5,
   },
 
@@ -541,7 +534,7 @@ sparkle: {
 
   retryText: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
   },
 
@@ -561,15 +554,15 @@ sparkle: {
 
   emptyTitle: {
     color: colors.text,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '800',
     marginTop: 8,
   },
 
   emptyText: {
     color: colors.muted,
-    fontSize: 10,
-    lineHeight: 15,
+    fontSize: 12,
+    lineHeight: 17,
     textAlign: 'center',
     marginTop: 5,
     maxWidth: 260,
@@ -585,7 +578,7 @@ sparkle: {
 
   emptyButtonText: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
   },
 })

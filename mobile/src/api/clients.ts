@@ -1,4 +1,8 @@
 import { apiRequest } from './client';
+import type {
+  FitProfile as ComputedFitProfile,
+  StyleRecommendation,
+} from './fit-profile';
 
 export type ClientGender =
   | 'MALE'
@@ -20,7 +24,10 @@ export type Client = {
   updatedAt: string;
 
   measurements?: Measurement[];
-  fitProfiles?: FitProfile[];
+
+  // Computed by GET /api/clients/:id from the latest measurement.
+  fitProfile?: ComputedFitProfile | null;
+  styleRecommendations?: StyleRecommendation[];
 };
 
 export type Measurement = {

@@ -30,6 +30,9 @@ type Preferences = {
   fabric: string;
   colour: string;
   occasion: string;
+  // Optional: a specific recommended style (e.g. "Wrap Dress") from the fit profile.
+  styleName?: string;
+  styleDescription?: string;
 };
 
 // ---------- helpers ----------
@@ -88,10 +91,22 @@ function pick(value: string, fallback: string) {
   return value === 'Let AI choose' ? fallback : value;
 }
 
+/** "modern Wrap Dress (crossover bodice tied at the waist)" or just "modern Dress". */
+function garmentPhrase(p: Preferences) {
+  const base = `${p.style.toLowerCase()} ${p.styleName || p.garmentType}`;
+  if (!p.styleDescription) return base;
+  const desc = p.styleDescription.replace(/\.$/, '');
+  return `${base} (${desc.charAt(0).toLowerCase()}${desc.slice(1)})`;
+}
+
+function optionalText(value: unknown, max: number) {
+  return typeof value === 'string' && value.trim() ? value.trim().slice(0, max) : undefined;
+}
+
 /** Prompt for photo-based editing (the model sees the client). */
 function buildEditPrompt(p: Preferences, m: Measurement) {
   return [
-    `Dress the person in this photo in a ${p.style.toLowerCase()} ${p.garmentType} for a ${p.occasion.toLowerCase()}.`,
+    `Dress the person in this photo in a ${garmentPhrase(p)} for a ${p.occasion.toLowerCase()}.`,
     `Fabric: ${pick(p.fabric, 'a fabric that suits the style and occasion')}.`,
     `Colour: ${pick(p.colour, 'a colour that flatters their skin tone')}.`,
     describeBody(m) ? `Tailor the fit to a ${describeBody(m)}.` : '',
@@ -107,7 +122,7 @@ function buildEditPrompt(p: Preferences, m: Measurement) {
 /** Shorter prompt for text-only generation (goes in the URL, so keep it compact). */
 function buildTextPrompt(p: Preferences, m: Measurement) {
   return [
-    `Fashion design illustration of a ${p.style.toLowerCase()} ${p.garmentType}`,
+    `Fashion design illustration of a ${garmentPhrase(p)}`,
     `for a ${p.occasion.toLowerCase()},`,
     `${pick(p.fabric, 'fabric of your choice')} fabric,`,
     `${pick(p.colour, 'harmonious colour palette')},`,
@@ -189,7 +204,7 @@ export function registerAIDesignRoutes(app: Express) {
   app.post('/api/clients/:id/ai-designs', requireAuth, async (req: AuthRequest, res, next) => {
     try {
       const client = await prisma.client.findFirst({
-        where: { id: req.params.id, ownerId: req.userId },
+        where: { id: String(req.params.id), ownerId: req.userId },
         include: { measurements: { orderBy: { createdAt: 'desc' }, take: 1 } },
       });
       if (!client) return res.status(404).json({ message: 'Client not found.' });
@@ -201,7 +216,15 @@ export function registerAIDesignRoutes(app: Express) {
       if (!garmentType || !style || !fabric || !colour || !occasion) {
         return res.status(400).json({ message: 'Complete the design preferences before generating.' });
       }
-      const prefs: Preferences = { garmentType, style, fabric, colour, occasion };
+      const prefs: Preferences = {
+        garmentType,
+        style,
+        fabric,
+        colour,
+        occasion,
+        styleName: optionalText(req.body.styleName, 80),
+        styleDescription: optionalText(req.body.styleDescription, 200),
+      };
 
       // Photo is optional: with a photo we edit it, without one we generate from text.
       let photo: { buffer: Buffer; mimeType: string } | null = null;
@@ -242,7 +265,7 @@ export function registerAIDesignRoutes(app: Express) {
 
       const baseUrl = process.env.PUBLIC_API_URL || `http://localhost:${process.env.PORT || 4000}`;
       const imageUrl = `${baseUrl}/uploads/ai-designs/${filename}`;
-      const designName = `${style} ${garmentType}`;
+      const designName = prefs.styleName ? `${style} ${prefs.styleName}` : `${style} ${garmentType}`;
 
       const design = await prisma.aIDesign.create({
         data: {
@@ -283,10 +306,83 @@ export function registerAIDesignRoutes(app: Express) {
   app.get('/api/clients/:id/ai-designs', requireAuth, async (req: AuthRequest, res, next) => {
     try {
       const designs = await prisma.aIDesign.findMany({
-        where: { client: { id: req.params.id, ownerId: req.userId } },
+        where: { client: { id: String(req.params.id), ownerId: req.userId } },
         orderBy: { createdAt: 'desc' },
       });
       res.json({ designs });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // ---------- saved designs (all clients) ----------
+
+  const designListSelect = {
+    id: true,
+    name: true,
+    garmentType: true,
+    style: true,
+    fabric: true,
+    colour: true,
+    occasion: true,
+    imageUrl: true,
+    designData: true,
+    createdAt: true,
+    client: { select: { id: true, name: true } },
+  } as const;
+
+  // Every design across the tailor's clients. Optional ?search= (design or client name) and ?garment=.
+  app.get('/api/ai-designs', requireAuth, async (req: AuthRequest, res, next) => {
+    try {
+      const search = String(req.query.search || '').trim();
+      const garment = String(req.query.garment || '').trim();
+
+      const designs = await prisma.aIDesign.findMany({
+        where: {
+          client: { ownerId: req.userId },
+          ...(garment ? { garmentType: garment } : {}),
+          ...(search
+            ? { OR: [{ name: { contains: search } }, { client: { name: { contains: search } } }] }
+            : {}),
+        },
+        orderBy: { createdAt: 'desc' },
+        select: designListSelect,
+      });
+      res.json({ designs });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/ai-designs/:designId', requireAuth, async (req: AuthRequest, res, next) => {
+    try {
+      const design = await prisma.aIDesign.findFirst({
+        where: { id: String(req.params.designId), client: { ownerId: req.userId } },
+        select: { ...designListSelect, prompt: true },
+      });
+      if (!design) return res.status(404).json({ message: 'Design not found.' });
+      res.json({ design });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.delete('/api/ai-designs/:designId', requireAuth, async (req: AuthRequest, res, next) => {
+    try {
+      const design = await prisma.aIDesign.findFirst({
+        where: { id: String(req.params.designId), client: { ownerId: req.userId } },
+      });
+      if (!design) return res.status(404).json({ message: 'Design not found.' });
+
+      await prisma.aIDesign.delete({ where: { id: design.id } });
+
+      // Remove the image file too (only files we stored ourselves).
+      const filename = path.basename(new URL(design.imageUrl, 'http://local').pathname);
+      if (design.imageUrl.includes('/uploads/ai-designs/') && filename) {
+        await fs.unlink(path.join(uploadDir, filename)).catch(() => {});
+      }
+
+      res.status(204).send();
     } catch (error) {
       next(error);
     }
