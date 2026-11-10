@@ -1,6 +1,9 @@
 import { getToken } from '../storage/token';
 
-const API_URL = 'http://localhost:4000';
+// Set in mobile/.env. Use your computer's LAN IP (not localhost) so the
+// Android emulator and real phones can reach the backend.
+export const API_URL =
+  process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 type ApiRequestOptions = {
   method?: string;

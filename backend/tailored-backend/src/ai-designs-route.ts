@@ -49,6 +49,21 @@ function extensionFor(mimeType: string) {
   return 'jpg';
 }
 
+/**
+ * Reads a model name from the environment. Model names never contain spaces or
+ * start with "/", so values like "POST /v1/images/edits" (an endpoint, not a
+ * model) are ignored and the default is used instead.
+ */
+function modelFromEnv(name: string, fallback: string) {
+  const value = process.env[name]?.trim();
+  if (!value) return fallback;
+  if (/\s/.test(value) || value.startsWith('/')) {
+    console.warn(`${name}="${value}" is not a model name; using "${fallback}".`);
+    return fallback;
+  }
+  return value;
+}
+
 function authHeaders(): Record<string, string> {
   const key = process.env.POLLINATIONS_API_KEY;
   return key ? { Authorization: `Bearer ${key}` } : {};
@@ -138,7 +153,7 @@ function buildTextPrompt(p: Preferences, m: Measurement) {
 /** Photo + prompt → new image. OpenAI-compatible /v1/images/edits. */
 async function generateFromPhoto(prompt: string, image: { buffer: Buffer; mimeType: string }) {
   const form = new FormData();
-  form.append('model', process.env.POLLINATIONS_EDIT_MODEL || 'kontext');
+  form.append('model', modelFromEnv('POLLINATIONS_EDIT_MODEL', 'kontext'));
   form.append('prompt', prompt);
   form.append('size', '1024x1536');
   form.append(
@@ -174,7 +189,7 @@ async function generateFromPhoto(prompt: string, image: { buffer: Buffer; mimeTy
 /** Prompt only → image bytes. Simple GET /image/{prompt}. */
 async function generateFromText(prompt: string) {
   const params = new URLSearchParams({
-    model: process.env.POLLINATIONS_TEXT_MODEL || 'flux',
+    model: modelFromEnv('POLLINATIONS_TEXT_MODEL', 'flux'),
     width: '768',
     height: '1152',
     seed: String(Math.floor(Math.random() * 1_000_000)),
@@ -185,7 +200,16 @@ async function generateFromText(prompt: string) {
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     console.error('Pollinations text-to-image error:', res.status, body);
-    throw new Error('The AI image service could not generate the design.');
+    let reason = '';
+    try {
+      const data = JSON.parse(body);
+      reason = data?.error?.message || data?.message || '';
+    } catch {}
+    throw new Error(
+      reason
+        ? `The AI image service could not generate the design: ${reason}`
+        : `The AI image service could not generate the design (status ${res.status}).`,
+    );
   }
   return Buffer.from(await res.arrayBuffer());
 }

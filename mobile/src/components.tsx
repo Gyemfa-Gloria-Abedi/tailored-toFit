@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   primaryDisabled: { opacity: 0.55},
   primaryText: { color: '#fff', fontWeight: '700', fontSize: 16 },
   outline: { minHeight: 46, borderRadius: 9, borderWidth: 1, borderColor: colors.purple, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
-  outlineText: { color: colors.purple, fontWeight: '700', fontSize: 16 },
+  outlineText: { color: colors.purple, fontWeight: '700', fontSize: 16, textAlign: 'center' },
   card: { backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: colors.line, padding: 14 },
   pill: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, backgroundColor: colors.lilac },
   pillActive: { backgroundColor: colors.purple },

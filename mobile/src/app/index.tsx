@@ -67,9 +67,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
 
+
   logo: {
-    width: '40%',
-    maxWidth: 160,
+    maxWidth: 300,
+    width: 300,
+    height: 300,
     aspectRatio: 1,
   },
 
@@ -103,8 +105,9 @@ const styles = StyleSheet.create({
   },
 
   model: {
-    width: '80%',
-    maxWidth: 320,
+    maxWidth: 300,
+    width: 300,
+    height: 300,
     aspectRatio: 1,
     opacity: 0.72,
     marginVertical: 4,
