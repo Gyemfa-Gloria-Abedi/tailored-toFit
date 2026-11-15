@@ -203,12 +203,12 @@ export default function Home() {
                     key={title}
                     onPress={() => router.push(route as any)}
                     style={styles.quick}>
-                    <View style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+                    <View style={styles.quickRow}>
                       <IconCircle text={icon} />
-
-                    <Text style={styles.quickTitle}>{title} {'\n'} 
-                    <Text style={styles.quickDesc}>{desc}</Text></Text>
-
+                      <View style={styles.quickText}>
+                        <Text style={styles.quickTitle}>{title}</Text>
+                        <Text style={styles.quickDesc}>{desc}</Text>
+                      </View>
                     </View>
                     
                   </Pressable>
@@ -407,7 +407,7 @@ sparkle: {
   },
 
   quick: {
-    display: 'flex',
+    width: '100%',
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: colors.line,
@@ -416,12 +416,21 @@ sparkle: {
     minHeight: 112,
   },
 
-  quickTitle: {
+  quickRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+
+  quickText: {
     flex: 1,
+    minWidth: 0,
+  },
+
+  quickTitle: {
     fontSize: 13,
     fontWeight: '800',
     color: colors.text,
-    marginTop: 8,
   },
 
   quickDesc: {

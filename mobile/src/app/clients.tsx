@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
   },
 
   clientInfo: {
